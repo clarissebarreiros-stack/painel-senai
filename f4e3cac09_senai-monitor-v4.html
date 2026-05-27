@@ -1,0 +1,2712 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SENAi Monitor · DR Alagoas</title>
+<style>
+:root {
+  --senai-blue: #164194;
+  --senai-orange: #E84910;
+  --senai-light-blue: #008BD2;
+  --senai-bg: #f1f5f9;
+  --senai-white: #ffffff;
+  --senai-text: #1e293b;
+  --senai-muted: #64748b;
+  --senai-border: #e2e8f0;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', sans-serif; background: var(--senai-bg); color: var(--senai-text); display: flex; min-height: 100vh; font-size: 14px; }
+a { color: var(--senai-blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+button, select, input { font-family: inherit; }
+
+/* SIDEBAR */
+.sidebar { width: 230px; min-height: 100vh; background: #ffffff; display: flex; flex-direction: column; position: fixed; left: 0; top: 0; bottom: 0; z-index: 100; border-right: 1px solid #e2e8f0; }
+.sidebar-logo { padding: 20px 12px 16px; border-bottom: 1px solid #e2e8f0; text-align: center; }
+.logo-mark { font-size: 28px; font-weight: 900; font-style: italic; letter-spacing: 1px; line-height: 1; }
+.logo-sena { color: #ffffff; }
+.logo-i { color: var(--senai-orange); }
+.logo-sub { font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 3px; }
+.nav { padding: 14px 0; flex: 1; overflow-y: auto; }
+.nav-label { padding: 6px 18px; font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-top: 8px; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 11px 18px; color: #475569; font-size: 13px; font-weight: 500; cursor: pointer; border-left: 3px solid transparent; transition: all 0.15s; border-radius: 0 8px 8px 0; margin-right: 10px; }
+.nav-item:hover { background: #f1f5f9; color: var(--senai-blue); }
+.nav-item.active { color: var(--senai-blue); background: #eff6ff; border-left-color: var(--senai-orange); font-weight: 700; }
+.nav-icon { font-size: 15px; width: 20px; text-align: center; }
+.sidebar-footer { padding: 14px 18px; border-top: 1px solid #e2e8f0; font-size: 10px; color: #94a3b8; }
+
+/* MAIN */
+.main { margin-left: 230px; flex: 1; padding: 28px; max-width: 1400px; }
+.page-header { margin-bottom: 22px; }
+.page-title { font-size: 20px; font-weight: 700; color: var(--senai-blue); padding-left: 12px; border-left: 4px solid var(--senai-orange); line-height: 1.2; }
+.page-sub { font-size: 12px; color: var(--senai-muted); padding-left: 16px; margin-top: 3px; }
+.breadcrumb { font-size: 11px; color: var(--senai-muted); padding-left: 16px; margin-top: 2px; }
+
+/* FILTER BAR */
+.filter-bar { display: flex; flex-wrap: wrap; gap: 10px; background: var(--senai-white); border-radius: 10px; padding: 12px 16px; margin-bottom: 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); align-items: center; }
+.flbl { font-size: 12px; color: var(--senai-muted); font-weight: 600; }
+.cache-info { font-size: 11px; color: var(--senai-muted); margin-left: auto; }
+select { padding: 6px 10px; border: 1px solid var(--senai-border); border-radius: 6px; font-size: 13px; background: #f8fafc; color: var(--senai-text); outline: none; cursor: pointer; }
+input { padding: 6px 10px; border: 1px solid var(--senai-border); border-radius: 6px; font-size: 13px; background: #f8fafc; color: var(--senai-text); outline: none; }
+input:focus, select:focus { border-color: var(--senai-blue); }
+
+/* BUTTONS */
+.btn { padding: 7px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 5px; }
+.btn-primary { background: var(--senai-blue); color: #fff; }
+.btn-primary:hover { background: #1a50b8; }
+.btn-orange { background: var(--senai-orange); color: #fff; }
+.btn-orange:hover { background: #cc3d0d; }
+.btn-outline { background: transparent; color: var(--senai-blue); border: 1.5px solid var(--senai-blue); }
+.btn-outline:hover { background: #eef2ff; }
+.btn-sm { padding: 4px 10px; font-size: 12px; }
+.btn-danger { background: #ef4444; color: #fff; }
+.btn-disabled { background: #e2e8f0; color: #94a3b8; cursor: not-allowed; }
+.btn-ghost { background: transparent; color: var(--senai-muted); border: 1px solid var(--senai-border); }
+.btn-ghost:hover { background: #f8fafc; }
+
+/* KPI CARDS */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; margin-bottom: 22px; }
+.kpi { background: var(--senai-white); border-radius: 10px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); border-top: 3px solid var(--senai-muted); position: relative; overflow: hidden; }
+.kpi.kpi-blue { border-top-color: var(--senai-blue); }
+.kpi.kpi-orange { border-top-color: var(--senai-orange); }
+.kpi.kpi-light { border-top-color: var(--senai-light-blue); }
+.kpi.kpi-green { border-top-color: #22c55e; }
+.kpi.kpi-red { border-top-color: #ef4444; }
+.kpi.kpi-yellow { border-top-color: #eab308; }
+.kpi-label { font-size: 10px; color: var(--senai-muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; margin-bottom: 6px; }
+.kpi-value { font-size: 32px; font-weight: 700; color: var(--senai-text); line-height: 1; }
+.kpi-sub { font-size: 11px; color: var(--senai-muted); margin-top: 5px; }
+
+/* LEVEL MINI CARDS */
+.level-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 22px; }
+.level-card { background: var(--senai-white); border-radius: 10px; padding: 14px 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); border-left: 4px solid var(--senai-muted); }
+.level-card.lc-blue { border-left-color: var(--senai-blue); }
+.level-card.lc-light { border-left-color: var(--senai-light-blue); }
+.level-card.lc-orange { border-left-color: var(--senai-orange); }
+.level-name { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--senai-muted); margin-bottom: 8px; }
+.level-count { font-size: 24px; font-weight: 700; color: var(--senai-text); }
+.level-stats { display: flex; gap: 12px; margin-top: 6px; font-size: 11px; color: var(--senai-muted); }
+
+/* CARDS */
+.card { background: var(--senai-white); border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); margin-bottom: 18px; }
+.card-hd { padding: 13px 16px; border-bottom: 1px solid var(--senai-border); display: flex; align-items: center; justify-content: space-between; }
+.card-title { font-size: 13px; font-weight: 700; color: var(--senai-blue); }
+.card-body { padding: 14px 16px; }
+
+/* TABLES */
+.tbl-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { padding: 9px 12px; text-align: left; font-size: 11px; font-weight: 700; color: var(--senai-muted); text-transform: uppercase; background: #f8fafc; border-bottom: 1px solid var(--senai-border); cursor: pointer; user-select: none; white-space: nowrap; }
+th:hover { background: #eef2ff; color: var(--senai-blue); }
+td { padding: 9px 12px; border-top: 1px solid #f8fafc; vertical-align: middle; }
+tr:hover td { background: #fafafa; }
+tr.row-delayed td { background: #fff7ed; }
+tr.row-delayed:hover td { background: #ffedd5; }
+
+/* BADGES */
+.badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.b-green { background: #dcfce7; color: #15803d; }
+.b-red { background: #fee2e2; color: #991b1b; }
+.b-yellow { background: #fef9c3; color: #854d0e; }
+.b-blue { background: #dbeafe; color: #1e40af; }
+.b-orange { background: #ffedd5; color: #9a3412; }
+.b-gray { background: #f1f5f9; color: #475569; }
+.b-purple { background: #f3e8ff; color: #7e22ce; }
+.b-teal { background: #ccfbf1; color: #0f766e; }
+
+/* PROGRESS */
+.pbar-wrap { margin: 3px 0; }
+.pbar-top { display: flex; justify-content: space-between; font-size: 11px; color: var(--senai-muted); margin-bottom: 3px; }
+.pbar-top span:last-child { font-weight: 700; }
+.pbar-bg { height: 5px; background: var(--senai-border); border-radius: 3px; overflow: hidden; }
+.pbar-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
+
+/* ALERTS */
+.alert { padding: 10px 14px; border-radius: 7px; font-size: 13px; margin-bottom: 12px; }
+.alert-err { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+.alert-ok { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+.alert-warn { background: #fef9c3; color: #854d0e; border: 1px solid #fde047; }
+.alert-info { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+
+/* INSIGHT CARDS */
+.insight { border-radius: 8px; padding: 10px 14px; font-size: 13px; display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+.i-green { background: #dcfce7; color: #15803d; border-left: 4px solid #22c55e; }
+.i-yellow { background: #fef9c3; color: #854d0e; border-left: 4px solid #eab308; }
+.i-orange { background: #ffedd5; color: #9a3412; border-left: 4px solid var(--senai-orange); }
+.i-red { background: #fee2e2; color: #991b1b; border-left: 4px solid #ef4444; }
+.i-blue { background: #dbeafe; color: #1e40af; border-left: 4px solid var(--senai-blue); }
+
+/* EMPTY STATE */
+.empty { text-align: center; padding: 48px 24px; color: var(--senai-muted); }
+.empty-ico { font-size: 48px; margin-bottom: 12px; }
+.empty-title { font-size: 15px; font-weight: 600; color: var(--senai-text); margin-bottom: 6px; }
+.empty-text { font-size: 13px; color: var(--senai-muted); max-width: 360px; margin: 0 auto 14px; }
+
+/* AVATAR */
+.avatar { border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; flex-shrink: 0; overflow: hidden; }
+
+/* LOADING */
+.loading-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.85); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; }
+.loading-spinner { width: 44px; height: 44px; border: 4px solid var(--senai-border); border-top-color: var(--senai-blue); border-radius: 50%; animation: spin 0.8s linear infinite; }
+.loading-msg { font-size: 14px; color: var(--senai-blue); font-weight: 600; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* GOVERNANCE */
+.gov-score-card { background: var(--senai-white); border-radius: 10px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); margin-bottom: 18px; display: flex; align-items: center; gap: 24px; }
+.gov-score-circle { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.gov-badges { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.gov-section { margin-bottom: 8px; }
+.gov-section-hd { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: #f8fafc; border: 1px solid var(--senai-border); border-radius: 8px; cursor: pointer; user-select: none; }
+.gov-section-hd:hover { background: #eef2ff; }
+.gov-section-title { font-size: 13px; font-weight: 700; color: var(--senai-text); flex: 1; }
+.gov-section-body { border: 1px solid var(--senai-border); border-top: none; border-radius: 0 0 8px 8px; overflow: hidden; }
+
+/* COLLAB CARDS */
+.collab-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; margin-bottom: 18px; }
+.collab-card { background: var(--senai-white); border-radius: 10px; padding: 14px 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); display: flex; align-items: flex-start; gap: 12px; }
+.collab-info { flex: 1; min-width: 0; }
+.collab-name { font-size: 13px; font-weight: 700; color: var(--senai-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.collab-stats { font-size: 11px; color: var(--senai-muted); margin-top: 2px; }
+.collab-bars { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+
+/* MONITORING TREE */
+.tree-item { border-left: 2px solid var(--senai-border); margin-left: 16px; padding-left: 12px; margin-top: 4px; }
+.tree-root { margin-left: 0; border-left: none; padding-left: 0; }
+.item-row { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 7px; cursor: pointer; }
+.item-row:hover { background: #f8fafc; }
+.item-toggle { font-size: 10px; color: var(--senai-muted); width: 14px; flex-shrink: 0; }
+.item-title { flex: 1; font-size: 13px; font-weight: 500; color: var(--senai-text); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.item-title a { color: var(--senai-text); }
+.item-title a:hover { color: var(--senai-blue); text-decoration: none; }
+
+/* TABS (dentro de páginas) */
+.tabs { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 14px; }
+.tab { padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; border: 1.5px solid var(--senai-border); cursor: pointer; background: var(--senai-white); color: var(--senai-muted); transition: all 0.15s; }
+.tab:hover { border-color: var(--senai-blue); color: var(--senai-blue); }
+.tab.active { background: var(--senai-blue); color: #fff; border-color: var(--senai-blue); }
+
+/* FORM */
+.form-group { margin-bottom: 14px; }
+.form-lbl { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 5px; }
+.form-input { width: 100%; padding: 8px 12px; border: 1.5px solid var(--senai-border); border-radius: 7px; font-size: 13px; outline: none; }
+.form-input:focus { border-color: var(--senai-blue); }
+
+/* TWO COL */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 18px; }
+@media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } .level-grid { grid-template-columns: 1fr; } }
+
+/* PLACEHOLDER PAGE */
+.placeholder-page { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 400px; text-align: center; gap: 14px; }
+.placeholder-icon { font-size: 64px; }
+.placeholder-title { font-size: 20px; font-weight: 700; color: var(--senai-blue); }
+.placeholder-sub { font-size: 14px; color: var(--senai-muted); max-width: 440px; line-height: 1.6; }
+
+/* MISC */
+.sep { height: 1px; background: var(--senai-border); margin: 14px 0; }
+.text-muted { color: var(--senai-muted); }
+.text-sm { font-size: 12px; }
+.fw700 { font-weight: 700; }
+.flex { display: flex; align-items: center; gap: 8px; }
+.ml-auto { margin-left: auto; }
+</style>
+</head>
+<body>
+<div id="sidebar"></div>
+<div class="main" id="main"></div>
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+var S = {
+  page: 'dashboard',
+  token: (function(){ try { return localStorage.getItem('azurePAT') || ''; } catch(e) { return ''; } })(),
+  iterations: [],
+  workItems: [],
+  year: '2026',
+  loading: false,
+  loadingMsg: null,
+  error: null,
+  cache: null,
+  cacheYear: null,
+  cacheTs: 0,
+  holidays: (function(){ try { return JSON.parse(localStorage.getItem('holidays') || '[]'); } catch(e) { return []; } })(),
+  dashArea: 'Todas', dashLevel: 'Todos',
+  monLevel: 'Todos', monArea: 'Todas', monStatus: 'Todos',
+  monSort: { col: 'id', dir: 'asc' },
+  collabName: '__all__', collabArea: 'Todas', collabType: 'Todos',
+  govArea: 'Todas', govSection: {},
+  expanded: {},
+  patInput: '', patMsg: null,
+  holDate: '', holName: '', holYear: '2026'
+};
+
+// ============================================================
+// CONSTANTS
+// ============================================================
+var ORG = 'SENAIAlagoas';
+var BASE = 'https://dev.azure.com/' + ORG;
+var PROXY = 'https://base44.app/api/apps/6a1495babdc5ca8806ca7cd6/functions/azureProxy';
+
+function proxyFetch(azureUrl, tok, opts) {
+  var options = opts || {};
+  var headers = { 'X-Azure-Pat': tok, 'X-Azure-Url': azureUrl, 'Content-Type': 'application/json' };
+  return fetch(PROXY, {
+    method: options.method || 'GET',
+    headers: headers,
+    body: options.body || undefined
+  });
+}
+
+// Converte "YYYY-MM-DD" para Date local (evita interpretação UTC do new Date("YYYY-MM-DD"))
+function localDate(s) {
+  if (!s) return null;
+  var p = s.substring(0,10).split('-');
+  return new Date(+p[0], +p[1]-1, +p[2]);
+}
+
+// ── Capacidade semanal por colaborador (horas semanais) ──────────────
+var WEEKLY_HOURS = {
+  'Eduardo':  30,
+  'Pedro':    30,
+  'Thiago':   44,
+  'Gustavo':  44,
+  'Mychella': 44,
+  'Weverton': 44,
+  'Ygor':     44,
+  'Fernando': 44,
+  'Andrea':   44,
+  'Andréa':   44
+};
+var DEFAULT_WEEKLY_HOURS = 40;
+
+// Colaboradores excluídos de todos os cálculos
+var EXCLUDED_COLLABS = ['Ariane'];
+
+// Retorna true se colaborador deve ser excluído
+function isExcluded(displayName) {
+  if (!displayName) return false;
+  return EXCLUDED_COLLABS.some(function(ex){ return displayName.toLowerCase().includes(ex.toLowerCase()); });
+}
+
+// Retorna horas semanais de um colaborador (por primeiro nome)
+function getWeeklyHours(displayName) {
+  if (!displayName) return DEFAULT_WEEKLY_HOURS;
+  var first = displayName.trim().split(' ')[0];
+  for (var key in WEEKLY_HOURS) {
+    if (key.toLowerCase() === first.toLowerCase()) return WEEKLY_HOURS[key];
+  }
+  return DEFAULT_WEEKLY_HOURS;
+}
+
+// Retorna capacidade de horas numa sprint baseado nas semanas do período
+function getSprintCapacity(displayName, startDate, finishDate) {
+  if (!startDate || !finishDate) return 40;
+  var sd = localDate(startDate), fd = localDate(finishDate);
+  // Contar dias úteis
+  var cur = new Date(sd), wd = 0;
+  fd.setHours(23,59,59,0);
+  while (cur <= fd) {
+    var d = cur.getDay(); if (d !== 0 && d !== 6) wd++;
+    cur.setDate(cur.getDate() + 1);
+  }
+  var weeks = wd / 5; // semanas equivalentes
+  var whrs = getWeeklyHours(displayName);
+  return Math.round(weeks * whrs);
+}
+
+// Proxy fetch — roteia chamadas Azure pelo backend para evitar CORS
+
+
+
+var ABASE = BASE + '/b007cc3b-1a92-421b-a0ce-8a9251e102da';
+var DEVOPS = BASE + '/SENAI/_workitems/edit/';
+var DONE   = ['Concluído','Closed','Done'];
+var PAUSED = ['Pausado','On Hold','Paused'];
+var CANCEL = ['Cancelado','Removed','Cancelled'];
+
+// ============================================================
+// UTILS
+// ============================================================
+function el(tag, cls, html) {
+  var e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (html !== undefined) e.innerHTML = html;
+  return e;
+}
+function txt(s) { return document.createTextNode(String(s == null ? '' : s)); }
+function ap(p) {
+  for (var i = 1; i < arguments.length; i++) {
+    var c = arguments[i];
+    if (c == null || c === false) continue;
+    if (typeof c === 'string' || typeof c === 'number') p.appendChild(txt(c));
+    else p.appendChild(c);
+  }
+  return p;
+}
+function pct(a, b) { return b ? Math.round(a / b * 100) : 0; }
+function fmt(d) {
+  if (!d) return '—';
+  var dt = new Date(d);
+  return ('0'+dt.getDate()).slice(-2)+'/'+('0'+(dt.getMonth()+1)).slice(-2)+'/'+dt.getFullYear();
+}
+function auth(t) { return 'Basic ' + btoa(':' + t); }
+function timeAgo(ts) {
+  if (!ts) return '';
+  var mins = Math.round((Date.now() - ts) / 60000);
+  if (mins < 1) return 'agora';
+  if (mins < 60) return 'há ' + mins + ' min';
+  return 'há ' + Math.round(mins/60) + 'h';
+}
+function avatarBg(name) {
+  var pal = ['#164194','#008BD2','#E84910','#7c3aed','#0891b2','#15803d','#b45309'];
+  var h = 0;
+  for (var i = 0; i < (name||'').length; i++) h = (name||'').charCodeAt(i) + ((h<<5) - h);
+  return pal[Math.abs(h) % pal.length];
+}
+function initials(name) {
+  return ((name||'').split(' ').filter(Boolean).slice(0,2).map(function(w){return w[0];}).join('')).toUpperCase() || '?';
+}
+
+// ============================================================
+// DATA FUNCTIONS
+// ============================================================
+function getArea(areaPath) {
+  if (!areaPath) return 'Outro';
+  if (areaPath.indexOf('Controladoria') >= 0) return 'Controladoria';
+  if (areaPath.indexOf('Educação Profissional') >= 0 || areaPath.indexOf('Educacao Profissional') >= 0) return 'Educação Profissional';
+  return 'Outro';
+}
+
+function getLevel(tags) {
+  if (!tags) return 'Sem tag';
+  if (tags.indexOf('Estratégico') >= 0 || tags.indexOf('Estrategico') >= 0) return 'Estratégico';
+  if (tags.indexOf('Tático') >= 0 || tags.indexOf('Tatico') >= 0) return 'Tático';
+  if (tags.indexOf('Operacional') >= 0) return 'Operacional';
+  if (tags.indexOf('Plano de trabalho') >= 0 || tags.indexOf('Plano de Trabalho') >= 0) return 'Plano de Trabalho';
+  if (tags.indexOf('Apoio a gestão') >= 0 || tags.indexOf('Apoio à gestão') >= 0 || tags.indexOf('Apoio a gestao') >= 0) return 'Apoio à Gestão';
+  if (tags.indexOf('T.I.') >= 0 || tags.indexOf('TI') >= 0) return 'T.I.';
+  return 'Sem tag';
+}
+
+function getLevelBadgeClass(level) {
+  if (level === 'Estratégico') return 'b-blue';
+  if (level === 'Tático') return 'b-teal';
+  if (level === 'Operacional') return 'b-orange';
+  if (level === 'Plano de Trabalho') return 'b-purple';
+  if (level === 'Apoio à Gestão') return 'b-gray';
+  if (level === 'T.I.') return 'b-teal';
+  return 'b-red';
+}
+
+function isTask(type)   { return type==='Tarefa'||type==='Task'; }
+function isPlan(type)   { return type==='Plano de Ação'||type==='Feature'; }
+function isAction(type) { return type==='Ação'||type==='Product Backlog Item'; }
+function isStale(item, days) {
+  days = days || 7;
+  var changed = item.fields['System.ChangedDate'];
+  if (!changed) return false;
+  return (new Date() - new Date(changed)) / (1000*60*60*24) > days;
+}
+
+function isDone(s) { return DONE.indexOf(s) >= 0; }
+function isPaused(s) { return PAUSED.indexOf(s) >= 0; }
+function isCancel(s) { return CANCEL.indexOf(s) >= 0; }
+
+function getIter(ip) {
+  return S.iterations.filter(function(i) {
+    return i.path === ip || i.name === (ip||'').split('\\').pop();
+  })[0];
+}
+
+function isDelayed(item) {
+  var s = item.fields['System.State'] || '';
+  if (isDone(s) || isPaused(s) || isCancel(s)) return false;
+  var iter = getIter(item.fields['System.IterationPath'] || '');
+  return !!(iter && iter.finishDate && localDate(iter.finishDate) < new Date());
+}
+
+function govIssues(item) {
+  var f = item.fields;
+  var issues = [];
+  if (!f['System.Parent'] || f['System.Parent'] === 0) issues.push('Sem parent');
+  if (!(f['System.Tags'] || '').trim()) issues.push('Sem tag');
+  var ip = f['System.IterationPath'] || '';
+  if (ip === 'SENAI' || ip.indexOf('Sprint') < 0) issues.push('Sem sprint');
+  if (!f['System.AssignedTo'] || !f['System.AssignedTo'].displayName) issues.push('Sem responsável');
+  return issues;
+}
+
+function calcExec(tasks) {
+  if (!tasks.length) return 0;
+  return pct(tasks.filter(function(t){return isDone(t.fields['System.State']||'');}).length, tasks.length);
+}
+
+function calcConf(tasks) {
+  var done = tasks.filter(function(t){return isDone(t.fields['System.State']||'');});
+  if (!done.length) return 0;
+  return pct(done.filter(function(t){
+    var cd = t.fields['Microsoft.VSTS.Common.StateChangeDate'];
+    var iter = getIter(t.fields['System.IterationPath']||'');
+    return !iter || !cd || new Date(cd) <= localDate(iter.finishDate);
+  }).length, done.length);
+}
+
+function getChildren(parentId, items) {
+  return items.filter(function(w){ return w.fields['System.Parent'] === parentId; });
+}
+
+function getAllDescendantTasks(item, items) {
+  var result = [];
+  var stack = [item.fields['System.Id']];
+  var visited = {};
+  while (stack.length) {
+    var id = stack.pop();
+    if (visited[id]) continue;
+    visited[id] = true;
+    var children = getChildren(id, items);
+    children.forEach(function(c){
+      var t = c.fields['System.WorkItemType'];
+      if (t === 'Tarefa' || t === 'Task') result.push(c);
+      else stack.push(c.fields['System.Id']);
+    });
+  }
+  return result;
+}
+
+function workDays(s, e) {
+  if (!s || !e) return 0;
+  var hSet = {};
+  S.holidays.forEach(function(h){ hSet[h.date] = 1; });
+  var count = 0, cur = new Date(s), end = new Date(e);
+  while (cur <= end) {
+    var d = cur.getDay(), ds = cur.toISOString().slice(0,10);
+    if (d !== 0 && d !== 6 && !hSet[ds]) count++;
+    cur.setDate(cur.getDate() + 1);
+  }
+  return count;
+}
+
+function exportCSV(items) {
+  var rows = [['ID','Tipo','Título','Área','Nível','Sprint','Estado','Responsável']];
+  items.forEach(function(w){
+    var f = w.fields;
+    var iter = getIter(f['System.IterationPath']||'');
+    rows.push([
+      f['System.Id'],
+      f['System.WorkItemType'],
+      '"' + (f['System.Title']||'').replace(/"/g,'""') + '"',
+      getArea(f['System.AreaPath']),
+      getLevel(f['System.Tags']||''),
+      iter ? iter.name : (f['System.IterationPath']||''),
+      f['System.State'],
+      (f['System.AssignedTo']&&f['System.AssignedTo'].displayName)||''
+    ]);
+  });
+  var csv = rows.map(function(r){return r.join(',');}).join('\n');
+  var blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = 'senai-monitor-export.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ============================================================
+// API
+// ============================================================
+function setLoadingMsg(msg) { S.loadingMsg = msg; renderLoading(); }
+
+function renderLoading() {
+  var ex = document.getElementById('loading-overlay');
+  if (S.loading) {
+    if (!ex) {
+      var ov = el('div','loading-overlay'); ov.id = 'loading-overlay';
+      var sp = el('div','loading-spinner');
+      var msg = el('div','loading-msg', S.loadingMsg || 'Carregando...');
+      msg.id = 'loading-msg-el';
+      ap(ov, sp, msg);
+      document.body.appendChild(ov);
+    } else if (S.loadingMsg) {
+      var mel = document.getElementById('loading-msg-el');
+      if (mel) mel.textContent = S.loadingMsg;
+    }
+  } else {
+    if (ex) ex.remove();
+  }
+}
+
+async function fetchIters(tok) {
+  setLoadingMsg('Carregando sprints...');
+  var r = await proxyFetch(ABASE + '/_apis/work/teamsettings/iterations?$expand=attributes&api-version=7.0', tok);
+  if (!r.ok) throw new Error(r.status + ' ' + r.statusText);
+  var d = await r.json();
+  return (d.value||[]).map(function(i){
+    // Normalizar para YYYY-MM-DD (remover fuso horário para comparação por data local)
+    function normDate(s) { return s ? s.substring(0,10) : null; }
+    return {id:i.id, name:i.name, path:i.path||i.name,
+      startDate: normDate(i.attributes&&i.attributes.startDate),
+      finishDate: normDate(i.attributes&&i.attributes.finishDate)};
+  });
+}
+
+async function fetchItems(tok, year, force) {
+  if (!force && S.cache && S.cacheYear === year && Date.now() - S.cacheTs < 300000) return S.cache;
+  setLoadingMsg('Consultando Azure DevOps...');
+  var wiql = {query:"SELECT [System.Id] FROM WorkItems WHERE [System.TeamProject]='SENAI' AND [System.AreaPath] UNDER 'SENAI' AND [System.State] NOT IN ('Removido','Cancelled','Cancelado','Removed') ORDER BY [System.Id]"};
+  var wr = await proxyFetch(ABASE + '/_apis/wit/wiql?api-version=7.0', tok, {method:'POST',body:JSON.stringify(wiql)});
+  if (!wr.ok) throw new Error('WIQL ' + wr.status);
+  var wd = await wr.json();
+  var ids = (wd.workItems||[]).map(function(w){return w.id;});
+  if (!ids.length) return [];
+  var fields = ['System.Id','System.Title','System.WorkItemType','System.State','System.AssignedTo','System.Tags','System.AreaPath','System.IterationPath','System.Parent','Microsoft.VSTS.Scheduling.RemainingWork','Microsoft.VSTS.Common.StateChangeDate','System.CreatedDate','System.ChangedDate','Microsoft.VSTS.Scheduling.DueDate'];
+  var items = [];
+  for (var i = 0; i < ids.length; i += 200) {
+    setLoadingMsg('Carregando work items (' + Math.min(i+200, ids.length) + '/' + ids.length + ')...');
+    var br = await proxyFetch(BASE + '/_apis/wit/workitemsbatch?api-version=7.0', tok, {method:'POST',body:JSON.stringify({ids:ids.slice(i,i+200),fields:fields})});
+    if (!br.ok) throw new Error('Batch ' + br.status);
+    var bd = await br.json();
+    items = items.concat(bd.value||[]);
+  }
+  S.cache = items; S.cacheYear = year; S.cacheTs = Date.now();
+  return items;
+}
+
+async function loadData(tok, force) {
+  var t = tok || S.token;
+  if (!t) { S.error = 'Configure o PAT em Configurações.'; render(); return; }
+  S.loading = true; S.error = null; render();
+  try {
+    setLoadingMsg('Conectando ao Azure DevOps...');
+    S.iterations = await fetchIters(t);
+    var rawItems = await fetchItems(t, S.year, force);
+    // Excluir colaboradores da lista de exclusão
+    S.workItems = rawItems.filter(function(w){
+      var a = w.fields['System.AssignedTo'];
+      if (!a || !a.displayName) return true;
+      return !isExcluded(a.displayName);
+    });
+  } catch(e) { S.error = 'Erro ao carregar: ' + e.message; }
+  S.loading = false; setLoadingMsg(null); render();
+}
+
+// ============================================================
+// COMPONENTS
+// ============================================================
+function mkAvatar(name, url, size) {
+  size = size || 28;
+  var av = el('div','avatar');
+  av.style.cssText = 'width:'+size+'px;height:'+size+'px;min-width:'+size+'px;background:'+avatarBg(name||'')+';font-size:'+Math.round(size*0.38)+'px';
+  if (url) {
+    var img = new Image(); img.src = url;
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover';
+    img.onerror = function(){ img.style.display='none'; av.appendChild(txt(initials(name||''))); };
+    av.appendChild(img);
+  } else { av.appendChild(txt(initials(name||''))); }
+  return av;
+}
+
+function mkBadge(s, delayed) {
+  var b = el('span','badge');
+  if (isDone(s)) { b.className += ' b-green'; b.textContent = '✓ Concluído'; }
+  else if (isPaused(s)) { b.className += ' b-yellow'; b.textContent = '⏸ Pausado'; }
+  else if (isCancel(s)) { b.className += ' b-gray'; b.textContent = '✕ Cancelado'; }
+  else if (delayed) { b.className += ' b-orange'; b.textContent = '⚠ Atrasado'; }
+  else { b.className += ' b-blue'; b.textContent = '▶ Em andamento'; }
+  return b;
+}
+
+function mkLevelBadge(level) {
+  var b = el('span','badge '+getLevelBadgeClass(level)); b.textContent = level; return b;
+}
+
+function mkBar(val, label, color) {
+  var w = el('div','pbar-wrap');
+  var top = el('div','pbar-top');
+  ap(top, el('span','',label));
+  var pv = el('span','',''+val+'%'); pv.style.fontWeight='700';
+  ap(top, pv);
+  var bg = el('div','pbar-bg');
+  var fill = el('div','pbar-fill');
+  fill.style.cssText = 'width:'+Math.min(val,100)+'%;background:'+(color||'var(--senai-blue)');
+  ap(bg, fill); ap(w, top, bg);
+  return w;
+}
+
+function mkKpi(label, value, sub, cls) {
+  var k = el('div','kpi '+(cls||''));
+  ap(k, el('div','kpi-label',label), el('div','kpi-value',''+value));
+  if (sub) ap(k, el('div','kpi-sub',sub));
+  return k;
+}
+
+function mkSelect(opts, cur, cb) {
+  var s = document.createElement('select');
+  opts.forEach(function(o){
+    var op = document.createElement('option');
+    op.value = typeof o==='object'?o.v:o;
+    op.textContent = typeof o==='object'?o.l:o;
+    if (op.value === cur) op.selected = true;
+    s.appendChild(op);
+  });
+  s.onchange = function(){ cb(s.value); };
+  return s;
+}
+
+function mkBtn(text, cls, cb) {
+  var b = el('button','btn '+cls, text);
+  b.onclick = cb; return b;
+}
+
+function mkTab(text, active, cb) {
+  var t = el('button','tab'+(active?' active':''), text);
+  t.onclick = cb; return t;
+}
+
+function mkEmptyState(ico, title, text, action) {
+  var d = el('div','empty');
+  ap(d, el('div','empty-ico', ico), el('div','empty-title', title), el('div','empty-text', text));
+  if (action) ap(d, action);
+  return d;
+}
+
+function mkGovBadge(label, count, cls) {
+  var b = el('span','badge '+cls); b.textContent = label + ' ' + count; return b;
+}
+
+// ============================================================
+// PAGE: DASHBOARD
+// ============================================================
+// ============================================================
+// INSIGHTS ENGINE
+// ============================================================
+function buildInsights(allWis, curIter, sprintWis, spDone, spDelayed, spStale) {
+  var ins = [];
+  var today = new Date(); today.setHours(0,0,0,0);
+
+  if (!curIter || !sprintWis.length) {
+    ins.push({cls:'i-yellow',ico:'⚠',text:'Nenhum dado de sprint atual disponível para gerar insights.'});
+    return ins;
+  }
+
+  var spTotal = sprintWis.length;
+  var spActive = sprintWis.filter(function(w){ var s=w.fields['System.State']||''; return !isDone(s)&&!isPaused(s)&&!isCancel(s); });
+
+  // ── Calcular dias decorridos / totais da sprint ──────────
+  function workDaysBetween2(sd, fd) {
+    var cur=new Date(sd); cur.setHours(0,0,0,0);
+    var end=new Date(fd); end.setHours(23,59,59,0);
+    var n=0; while(cur<=end){var d=cur.getDay();if(d!==0&&d!==6)n++;cur.setDate(cur.getDate()+1);}
+    return n;
+  }
+  var totalDays = workDaysBetween2(curIter.startDate, curIter.finishDate);
+  var elapsedDays = workDaysBetween2(curIter.startDate, today);
+  var pctTime = totalDays ? Math.round(elapsedDays/totalDays*100) : 0;
+  var pctExec = spTotal ? Math.round(spDone.length/spTotal*100) : 0;
+  var sprintName = curIter.name;
+
+  // ── VERDE: progresso positivo ─────────────────────────────
+  if (spDone.length > 0 && pctExec >= pctTime) {
+    ins.push({cls:'i-green',ico:'🟢',text:'A equipe concluiu '+spDone.length+' item(ns) na '+sprintName+' — ritmo à frente do tempo decorrido ('+pctExec+'% exec vs '+pctTime+'% do tempo).'});
+  }
+
+  // Colaborador que concluiu tudo
+  var collabComplete = {};
+  var collabTotal = {};
+  sprintWis.forEach(function(w){
+    var a=w.fields['System.AssignedTo']; if(!a||!a.displayName) return;
+    var name=a.displayName;
+    collabTotal[name]=(collabTotal[name]||0)+1;
+    if(isDone(w.fields['System.State']||'')) collabComplete[name]=(collabComplete[name]||0)+1;
+  });
+  Object.keys(collabTotal).forEach(function(name){
+    if(collabTotal[name]>0 && collabComplete[name]===collabTotal[name]) {
+      ins.push({cls:'i-green',ico:'✅',text:name+' concluiu todos os '+collabTotal[name]+' item(ns) planejados para a '+sprintName+'.'});
+    }
+  });
+
+  if (spTotal > 0 && pctExec >= 60) {
+    var fd2 = localDate(curIter.finishDate); fd2.setHours(23,59,59,0);
+    var remaining = workDaysBetween2(today, curIter.finishDate);
+    ins.push({cls:'i-green',ico:'📈',text:pctExec+'% dos itens da '+sprintName+' já entregues com '+remaining+' dia(s) útil(is) restante(s).'});
+  }
+
+  // ── AMARELO: atenção ─────────────────────────────────────
+  if (pctTime - pctExec > 20) {
+    ins.push({cls:'i-yellow',ico:'⚠',text:'Sprint em risco: '+pctTime+'% do tempo decorrido mas apenas '+pctExec+'% dos itens concluídos na '+sprintName+'.'});
+  }
+
+  // Colaboradores com itens parados
+  spStale.forEach(function(w){
+    var a=w.fields['System.AssignedTo']; if(!a||!a.displayName) return;
+    ins.push({cls:'i-yellow',ico:'⏸',text:a.displayName+' tem item parado há mais de 7 dias sem movimentação: #'+w.fields['System.Id']+' · '+(w.fields['System.Title']||'').substring(0,50)});
+  });
+
+  // Itens estratégicos sem movimento
+  var stalEstr = spActive.filter(function(w){ return getLevel(w.fields['System.Tags']||'')==='Estratégico' && isStale(w,7); });
+  if (stalEstr.length) ins.push({cls:'i-yellow',ico:'🎯',text:stalEstr.length+' item(ns) Estratégico(s) sem movimentação na '+sprintName+'.'});
+
+  // ── LARANJA: ação necessária ─────────────────────────────
+  // Sobrecarga individual
+  var collabRW = {};
+  sprintWis.forEach(function(w){
+    var a=w.fields['System.AssignedTo']; if(!a||!a.displayName) return;
+    collabRW[a.displayName]=(collabRW[a.displayName]||0)+(w.fields['Microsoft.VSTS.Scheduling.RemainingWork']||0);
+  });
+  Object.keys(collabRW).forEach(function(name){
+    var capHrsPessoa = curIter ? getSprintCapacity(name, curIter.startDate, curIter.finishDate) : totalDays * DEFAULT_WEEKLY_HOURS / 5;
+    if (capHrsPessoa > 0 && collabRW[name] > capHrsPessoa) {
+      ins.push({cls:'i-orange',ico:'🔴',text:name+' está com '+collabRW[name].toFixed(0)+'h de RW em uma sprint de '+capHrsPessoa.toFixed(0)+'h disponíveis — excesso de carga.'});
+    }
+  });
+
+  // Itens atrasados sem atualização
+  spDelayed.forEach(function(w){
+    if (isStale(w,3)) {
+      ins.push({cls:'i-orange',ico:'🚨',text:'Item #'+w.fields['System.Id']+' está atrasado há mais de 3 dias sem atualização de estado.'});
+    }
+  });
+
+  // Próxima sprint vazia
+  var today2 = new Date();
+  var futureIters = (S.iterations||[]).filter(function(it){
+    return it.startDate && localDate(it.startDate) > today2;
+  }).sort(function(a,b){ return localDate(a.startDate) - localDate(b.startDate); });
+  if (futureIters.length > 0) {
+    var nextSp = futureIters[0];
+    var nextSpItems = allWis.filter(function(w){
+      var ip=w.fields['System.IterationPath']||'';
+      return ip.endsWith(nextSp.name)||ip===nextSp.path;
+    });
+    if (!nextSpItems.length) {
+      ins.push({cls:'i-orange',ico:'📅',text:'Próxima sprint ('+nextSp.name+') ainda não tem nenhum item planejado.'});
+    }
+  }
+
+  // Ordenar por criticidade: laranja → amarelo → verde
+  var order = {'i-orange':0,'i-yellow':1,'i-green':2,'i-blue':3};
+  ins.sort(function(a,b){ return (order[a.cls]||9)-(order[b.cls]||9); });
+  return ins;
+}
+
+function pageDashboard() {
+  var div = el('div');
+  var wis = S.workItems;
+  var today = new Date(); today.setHours(0,0,0,0);
+
+  // ── Sprint atual ────────────────────────────────────────
+  var curIter = null;
+  (S.iterations||[]).forEach(function(it){
+    if (!it.startDate) return;
+    var sd = localDate(it.startDate), fd = localDate(it.finishDate);
+    fd.setHours(23,59,59,0);
+    if (sd <= today && fd >= today) curIter = it;
+  });
+
+  // ── Filtros ─────────────────────────────────────────────
+  var fb = el('div','filter-bar');
+  ap(fb, el('span','flbl','Área:'),
+    mkSelect(['Todas','Controladoria','Educação Profissional'], S.dashArea, function(v){S.dashArea=v;render();}),
+    el('span','flbl','Nível:'),
+    mkSelect(['Todos','Estratégico','Tático','Operacional','Plano de Trabalho','Apoio à Gestão','T.I.'], S.dashLevel, function(v){S.dashLevel=v;render();}),
+    mkBtn('↻ Atualizar','btn-orange btn-sm', function(){ loadData(S.token,true); })
+  );
+  if (S.cacheTs) { var ci=el('div','cache-info'); ci.textContent='Atualizado '+timeAgo(S.cacheTs); ap(fb,ci); }
+  ap(div, el('div','page-title','Dashboard'), el('div','page-sub','Gestão de execução · '+S.year), fb);
+
+  if (!S.token) { ap(div, mkEmptyState('🔑','Token não configurado','Configure o PAT em Configurações.', mkBtn('Ir para Configurações','btn-primary btn-sm',function(){S.page='settings';render();}))); return div; }
+  if (!wis.length) { ap(div, mkEmptyState('📭','Sem dados','Clique em ↻ Atualizar para carregar dados do Azure DevOps.')); return div; }
+
+  // ── Filtrar work items ──────────────────────────────────
+  var filtWis = wis.filter(function(w){
+    if (S.dashArea !== 'Todas' && getArea(w.fields['System.AreaPath']) !== S.dashArea) return false;
+    if (S.dashLevel !== 'Todos' && getLevel(w.fields['System.Tags']||'') !== S.dashLevel) return false;
+    return true;
+  });
+
+  // ── Itens da sprint atual ───────────────────────────────
+  var sprintWis = curIter ? filtWis.filter(function(w){
+    var ip = w.fields['System.IterationPath']||'';
+    return ip.endsWith(curIter.name) || ip === curIter.path;
+  }) : [];
+
+  var spDone    = sprintWis.filter(function(w){ return isDone(w.fields['System.State']||''); });
+  var spActive  = sprintWis.filter(function(w){ var s=w.fields['System.State']||''; return !isDone(s)&&!isPaused(s)&&!isCancel(s); });
+  var spAlmost  = spActive.filter(function(w){ return (w.fields['Microsoft.VSTS.Scheduling.RemainingWork']||999) <= 4; });
+  var spDelayed = sprintWis.filter(function(w){ return isDelayed(w); });
+  var spStale   = spActive.filter(function(w){ return isStale(w,7); });
+  var spAttn    = sprintWis.filter(function(w){ return isDelayed(w)||isStale(w,7); });
+
+  // ── BLOCO 1: Situação da sprint atual ────────────────────
+  var spCard = el('div','card'); spCard.style.marginBottom='18px';
+  var spHd = el('div','card-hd');
+
+  function wdLeft(finishDate) {
+    if (!finishDate) return 0;
+    var fd = localDate(finishDate); fd.setHours(23,59,59,0);
+    var cur = new Date(today); var n = 0;
+    while (cur <= fd) { var d=cur.getDay(); if(d!==0&&d!==6) n++; cur.setDate(cur.getDate()+1); }
+    return n;
+  }
+  function fmtDate(d) { var dd=new Date(d); return dd.getDate().toString().padStart(2,'0')+'/'+(dd.getMonth()+1).toString().padStart(2,'0'); }
+
+  if (curIter) {
+    var spTitle = el('div'); spTitle.style.cssText='display:flex;align-items:center;gap:12px;flex-wrap:wrap';
+    var spName = el('span',''); spName.style.cssText='font-size:16px;font-weight:800;color:var(--senai-blue)';
+    spName.textContent = 'SPRINT ATUAL — '+curIter.name;
+    var spDates = el('span','badge b-light'); spDates.textContent = fmtDate(curIter.startDate)+' a '+fmtDate(curIter.finishDate);
+    var spDays = el('span','badge b-blue'); spDays.textContent = wdLeft(curIter.finishDate)+' dias úteis restantes';
+    ap(spTitle, spName, spDates, spDays);
+    ap(spHd, spTitle);
+  } else {
+    ap(spHd, el('span','card-title','Sprint atual não identificada'));
+  }
+  var spBody = el('div','card-body');
+  var spKpi = el('div','kpi-grid'); spKpi.style.gridTemplateColumns='repeat(4,1fr)';
+  ap(spKpi,
+    mkKpi('Em andamento', spActive.length, curIter?'na '+curIter.name:'', 'kpi-blue'),
+    mkKpi('Quase prontos', spAlmost.length, 'RW ≤ 4h', 'kpi-green'),
+    mkKpi('Concluídos', spDone.length, curIter?pct(spDone.length,sprintWis.length)+'% do total':'', spDone.length>0?'kpi-green':'kpi-light'),
+    mkKpi('Atenção', spAttn.length, 'atrasados + parados', spAttn.length>0?'kpi-red':'kpi-green')
+  );
+  ap(spBody, spKpi); ap(spCard, spHd, spBody);
+
+  // ── BLOCO 2: Grid de colaboradores na sprint ─────────────
+  var collabSpCard = el('div','card'); collabSpCard.style.marginBottom='18px';
+  var collabSpHd = el('div','card-hd'); ap(collabSpHd, el('span','card-title','👥 Equipe na Sprint'));
+  var collabGrid = el('div','collab-grid');
+
+  var collabMap2 = {};
+  sprintWis.forEach(function(w){
+    var a=w.fields['System.AssignedTo']; if(!a||!a.displayName) return;
+    var name=a.displayName;
+    if(!collabMap2[name]) collabMap2[name]={name:name,items:[],done:0,delayed:0,url:a._links&&a._links.avatar&&a._links.avatar.href};
+    collabMap2[name].items.push(w);
+    if(isDone(w.fields['System.State']||'')) collabMap2[name].done++;
+    if(isDelayed(w)) collabMap2[name].delayed++;
+  });
+
+  // Ordenar: atrasados primeiro, depois menor % execução
+  var collabList2 = Object.keys(collabMap2).map(function(k){ return collabMap2[k]; })
+    .sort(function(a,b){
+      if (b.delayed !== a.delayed) return b.delayed - a.delayed;
+      var ea = a.items.length ? a.done/a.items.length : 0;
+      var eb = b.items.length ? b.done/b.items.length : 0;
+      return ea - eb;
+    });
+
+  collabList2.forEach(function(cd){
+    var execPct = cd.items.length ? Math.round(cd.done/cd.items.length*100) : 0;
+    var active2 = cd.items.filter(function(w){ var s=w.fields['System.State']||''; return !isDone(s)&&!isPaused(s)&&!isCancel(s); }).length;
+    var cc = el('div','collab-card');
+    cc.style.cursor = 'pointer';
+    cc.onclick = function(){ S.collabName=cd.name; S.page='collaborator'; render(); };
+    ap(cc, mkAvatar(cd.name, cd.url, 40));
+    var ci2 = el('div','collab-info');
+    ap(ci2, el('div','collab-name', cd.name));
+    ap(ci2, el('div','collab-stats', cd.items.length+' itens · '+execPct+'% exec'));
+    // Barra de execução
+    var barWrap2 = el('div','pbar-bg'); var barFill2 = el('div','pbar-fill');
+    barFill2.style.cssText='width:'+execPct+'%;background:'+(execPct>=80?'#22c55e':execPct>=50?'#eab308':'#ef4444');
+    ap(barWrap2, barFill2); ap(ci2, barWrap2);
+    // Status rápido
+    var statusLine = el('div'); statusLine.style.cssText='display:flex;gap:6px;flex-wrap:wrap;margin-top:4px';
+    if(cd.done>0) { var b=el('span',''); b.style.cssText='font-size:11px;color:#22c55e'; b.textContent='✅ '+cd.done+' concluído(s)'; ap(statusLine,b); }
+    if(active2>0) { var b2=el('span',''); b2.style.cssText='font-size:11px;color:var(--senai-blue)'; b2.textContent='▶ '+active2+' em andamento'; ap(statusLine,b2); }
+    if(cd.delayed>0) { var b3=el('span',''); b3.style.cssText='font-size:11px;color:#ef4444;font-weight:700'; b3.textContent='⚠ '+cd.delayed+' atrasado(s)'; ap(statusLine,b3); }
+    ap(ci2, statusLine);
+    ap(cc, ci2); ap(collabGrid, cc);
+  });
+
+  if (!collabList2.length) ap(collabGrid, el('div','','Nenhum colaborador com itens na sprint atual.'));
+  var collabSpBody = el('div','card-body'); ap(collabSpBody, collabGrid);
+  ap(collabSpCard, collabSpHd, collabSpBody);
+
+  // ── BLOCO 3: Entregas recentes (7 dias) ─────────────────
+  var recentCard = el('div','card'); recentCard.style.marginBottom='18px';
+  var recentHd = el('div','card-hd'); ap(recentHd, el('span','card-title','✅ Entregas recentes — últimos 7 dias'));
+  var recentBody = el('div','card-body'); recentBody.style.padding='0';
+  var sevenDaysAgo = new Date(today.getTime() - 7*24*60*60*1000);
+  var recentDone = wis.filter(function(w){
+    if (!isDone(w.fields['System.State']||'')) return false;
+    var scd = w.fields['Microsoft.VSTS.Common.StateChangeDate'];
+    if (!scd) return false;
+    return new Date(scd) >= sevenDaysAgo;
+  }).sort(function(a,b){ return new Date(b.fields['Microsoft.VSTS.Common.StateChangeDate']) - new Date(a.fields['Microsoft.VSTS.Common.StateChangeDate']); });
+
+  if (!recentDone.length) {
+    var noRecent = el('div','alert alert-warn'); noRecent.style.margin='12px 16px';
+    noRecent.textContent = 'Nenhuma entrega registrada nos últimos 7 dias.';
+    ap(recentBody, noRecent);
+  } else {
+    recentDone.slice(0,10).forEach(function(w){
+      var row = el('div'); row.style.cssText='display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid #f1f5f9;font-size:13px';
+      var idA = document.createElement('a');
+      idA.href='https://dev.azure.com/SENAIAlagoas/Senai/_workitems/edit/'+w.fields['System.Id'];
+      idA.target='_blank'; idA.style.cssText='color:var(--senai-blue);font-weight:700;min-width:48px;white-space:nowrap';
+      idA.textContent='#'+w.fields['System.Id'];
+      var ttl = el('span'); ttl.textContent=w.fields['System.Title']||''; ttl.style.flex='1';
+      var resp = el('span'); resp.style.cssText='color:var(--senai-muted);font-size:12px;white-space:nowrap';
+      var a2=w.fields['System.AssignedTo']; resp.textContent=a2?a2.displayName:'—';
+      var when = el('span'); when.style.cssText='color:#22c55e;font-size:12px;white-space:nowrap';
+      var scd2 = w.fields['Microsoft.VSTS.Common.StateChangeDate'];
+      var diffD = Math.round((today - new Date(scd2))/(1000*60*60*24));
+      when.textContent = diffD===0?'hoje':diffD===1?'ontem':'há '+diffD+' dias';
+      ap(row, el('span','','✅'), idA, ttl, resp, when);
+      ap(recentBody, row);
+    });
+  }
+  ap(recentCard, recentHd, recentBody);
+
+  // ── BLOCO 4: Insights automáticos ───────────────────────
+  var insData = buildInsights(wis, curIter, sprintWis, spDone, spDelayed, spStale);
+  var insCard = el('div','card'); insCard.style.marginBottom='18px';
+  var insHd = el('div','card-hd'); ap(insHd, el('span','card-title','💡 Insights'));
+  var insBody = el('div','card-body'); insBody.style.padding='8px';
+  insData.slice(0,6).forEach(function(ins){
+    var row2 = el('div','insight-row '+ins.cls);
+    row2.textContent = ins.ico+' '+ins.text;
+    ap(insBody, row2);
+  });
+  if (!insData.length) { var noIns=el('div'); noIns.style.cssText='color:var(--senai-muted);padding:8px'; noIns.textContent='Nenhum insight disponível ainda.'; ap(insBody,noIns); }
+  ap(insCard, insHd, insBody);
+
+  ap(div, spCard, collabSpCard, recentCard, insCard);
+  return div;
+}
+
+
+function pageMonitoring() {
+  var div = el('div');
+  var wis = S.workItems;
+
+  var filtered = wis.filter(function(w){
+    var ok = true;
+    var s = w.fields['System.State']||'';
+    var d = isDelayed(w);
+    if (S.monArea !== 'Todas') ok = ok && getArea(w.fields['System.AreaPath'])===S.monArea;
+    if (S.monLevel !== 'Todos') ok = ok && getLevel(w.fields['System.Tags']||'')===S.monLevel;
+    if (S.monStatus !== 'Todos') {
+      if (S.monStatus==='Em andamento') ok = ok && !isDone(s)&&!isPaused(s)&&!isCancel(s)&&!d;
+      else if (S.monStatus==='Atrasado') ok = ok && d;
+      else if (S.monStatus==='Pausado') ok = ok && isPaused(s);
+      else if (S.monStatus==='Concluído') ok = ok && isDone(s);
+      else if (S.monStatus==='Cancelado') ok = ok && isCancel(s);
+    }
+    return ok;
+  });
+
+  // Sort
+  filtered = filtered.slice().sort(function(a,b){
+    var col = S.monSort.col, dir = S.monSort.dir==='asc'?1:-1;
+    var av, bv;
+    if (col==='id') { av=a.fields['System.Id']; bv=b.fields['System.Id']; }
+    else if (col==='state') { av=a.fields['System.State']||''; bv=b.fields['System.State']||''; }
+    else if (col==='area') { av=getArea(a.fields['System.AreaPath']); bv=getArea(b.fields['System.AreaPath']); }
+    else if (col==='level') { av=getLevel(a.fields['System.Tags']||''); bv=getLevel(b.fields['System.Tags']||''); }
+    else if (col==='sprint') { var ia=getIter(a.fields['System.IterationPath']||''),ib=getIter(b.fields['System.IterationPath']||''); av=(ia?ia.name:''); bv=(ib?ib.name:''); }
+    else { av=a.fields['System.Id']; bv=b.fields['System.Id']; }
+    if (av < bv) return -1*dir; if (av > bv) return 1*dir; return 0;
+  });
+
+  var fb = el('div','filter-bar');
+  ap(fb, el('span','flbl','Área:'), mkSelect(['Todas','Controladoria','Educação Profissional'], S.monArea, function(v){S.monArea=v;render();}));
+  ap(fb, el('span','flbl','Nível:'), mkSelect(['Todos','Estratégico','Tático','Operacional','Plano de Trabalho','Apoio à Gestão','T.I.'], S.monLevel, function(v){S.monLevel=v;render();}));
+  ap(fb, el('span','flbl','Status:'), mkSelect(['Todos','Em andamento','Atrasado','Pausado','Concluído','Cancelado'], S.monStatus, function(v){S.monStatus=v;render();}));
+  ap(fb, mkBtn('⬇ Exportar CSV','btn-ghost btn-sm', function(){ exportCSV(filtered); }));
+  if (S.cacheTs) { var ci=el('div','cache-info'); ci.textContent='Atualizado '+timeAgo(S.cacheTs); ap(fb,ci); }
+
+  ap(div, el('div','page-title','Monitoramento'), el('div','page-sub','Detalhamento de work items · '+S.year), fb);
+
+  if (S.error) ap(div, el('div','alert alert-err', S.error));
+  if (!S.token) { ap(div, mkEmptyState('🔑','Token não configurado','Configure o token de acesso em Configurações para carregar os dados.',mkBtn('Ir para Configurações','btn-primary btn-sm',function(){S.page='settings';render();}))); return div; }
+
+  // Gargalos card
+  var gc = el('div','card'); var gch = el('div','card-hd'); ap(gch,el('span','card-title','🚧 Gargalos'));
+  var gcb = el('div','card-body'); gcb.style.cssText='display:grid;grid-template-columns:repeat(3,1fr);gap:16px';
+
+  // top 3 sprints com mais atrasos
+  var sprintDelay = {};
+  wis.forEach(function(w){ if(isDelayed(w)){ var ip=w.fields['System.IterationPath']||''; sprintDelay[ip]=(sprintDelay[ip]||0)+1; } });
+  var topSprints = Object.keys(sprintDelay).sort(function(a,b){return sprintDelay[b]-sprintDelay[a];}).slice(0,3);
+  var sc1 = el('div'); ap(sc1,el('div','text-sm fw700','⏰ Sprints com mais atrasos'));
+  topSprints.forEach(function(sp){ var d=el('div','text-sm'); d.style.marginTop='4px'; ap(d,txt(sp.split('\\').pop()+': '),el('strong','',sprintDelay[sp]+' itens')); ap(sc1,d); });
+  if (!topSprints.length) ap(sc1,el('div','text-sm text-muted','Nenhum atraso encontrado.'));
+
+  // top 3 áreas com menor conformidade
+  var areas = ['Controladoria','Educação Profissional'];
+  var areaConf = areas.map(function(a){ var t=wis.filter(function(w){return getArea(w.fields['System.AreaPath'])===a&&(w.fields['System.WorkItemType']==='Tarefa'||w.fields['System.WorkItemType']==='Task');}); return {a:a,c:calcConf(t)}; });
+  areaConf.sort(function(a,b){return a.c-b.c;});
+  var sc2 = el('div'); ap(sc2,el('div','text-sm fw700','📉 Áreas com menor conformidade'));
+  areaConf.forEach(function(ac){ var d=el('div','text-sm'); d.style.marginTop='4px'; ap(d,txt(ac.a+': '),el('strong','',ac.c+'%')); ap(sc2,d); });
+
+  // top 3 colaboradores com mais atrasos
+  var collabDelay = {};
+  wis.forEach(function(w){ if(isDelayed(w)){ var a=w.fields['System.AssignedTo']; if(a&&a.displayName) collabDelay[a.displayName]=(collabDelay[a.displayName]||0)+1; } });
+  var topCollab = Object.keys(collabDelay).sort(function(a,b){return collabDelay[b]-collabDelay[a];}).slice(0,3);
+  var sc3 = el('div'); ap(sc3,el('div','text-sm fw700','👤 Colaboradores com mais atrasos'));
+  topCollab.forEach(function(name){ var d=el('div','text-sm'); d.style.marginTop='4px'; ap(d,txt(name+': '),el('strong','',collabDelay[name]+' itens')); ap(sc3,d); });
+  if (!topCollab.length) ap(sc3,el('div','text-sm text-muted','Nenhum colaborador com atrasos.'));
+
+  ap(gcb,sc1,sc2,sc3); ap(gc,gch,gcb); ap(div,gc);
+
+  // Table
+  var c = el('div','card'); var ch = el('div','card-hd');
+  ap(ch, el('span','card-title','Work Items ('+filtered.length+')'));
+  var tw = el('div','tbl-wrap');
+  var tbl = el('table'); var thead = el('thead'); var tr0 = el('tr');
+  var cols = [{id:'id',lbl:'ID'},{id:'type',lbl:'Tipo'},{id:'title',lbl:'Título'},{id:'area',lbl:'Área'},{id:'level',lbl:'Nível'},{id:'sprint',lbl:'Sprint'},{id:'state',lbl:'Estado'},{id:'gov',lbl:'Gov.'},];
+  cols.forEach(function(col){
+    var th = el('th','',col.lbl);
+    if (col.id!=='title'&&col.id!=='type'&&col.id!=='gov') {
+      th.onclick = function(){ if(S.monSort.col===col.id) S.monSort.dir=S.monSort.dir==='asc'?'desc':'asc'; else{S.monSort.col=col.id;S.monSort.dir='asc';} render(); };
+      if (S.monSort.col===col.id) th.textContent += (S.monSort.dir==='asc'?' ↑':' ↓');
+    }
+    ap(tr0,th);
+  });
+  ap(thead,tr0); ap(tbl,thead); var tbody = el('tbody');
+
+  if (!filtered.length) {
+    var etr=el('tr'); var etd=el('td'); etd.setAttribute('colspan','8');
+    ap(etd,mkEmptyState('📭','Nenhum item encontrado','Tente ampliar os critérios de filtro.',null));
+    ap(etr,etd); ap(tbody,etr);
+  }
+  filtered.slice(0,300).forEach(function(w){
+    var f=w.fields, id=f['System.Id'], s=f['System.State']||'';
+    var iter=getIter(f['System.IterationPath']||'');
+    var level=getLevel(f['System.Tags']||'');
+    var issues=govIssues(w);
+    var delayed=isDelayed(w);
+    var wtr=el('tr'); if(delayed)wtr.className='row-delayed';
+
+    var idlink=document.createElement('a'); idlink.href=DEVOPS+id; idlink.target='_blank'; idlink.style.fontWeight='700'; idlink.textContent='#'+id;
+    var td0=el('td'); ap(td0,idlink);
+    var td1=el('td'); ap(td1,el('span','badge b-gray',f['System.WorkItemType']));
+    var td2=el('td'); td2.style.cssText='max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'; td2.title=f['System.Title']; ap(td2,txt(f['System.Title']));
+    var td3=el('td'); ap(td3,el('span','text-sm',getArea(f['System.AreaPath'])));
+    var td4=el('td'); ap(td4,mkLevelBadge(level));
+    var td5=el('td'); ap(td5,el('span','text-sm',iter?iter.name:'—'));
+    var td6=el('td'); ap(td6,mkBadge(s,delayed));
+    var td7=el('td');
+    if (issues.length) {
+      var ic=el('span','badge b-red'); ic.title=issues.join(', '); ic.textContent='⚠ '+issues.length;
+      ap(td7,ic);
+    } else { ap(td7,el('span','badge b-green','✓')); }
+    ap(wtr,td0,td1,td2,td3,td4,td5,td6,td7);
+    ap(tbody,wtr);
+  });
+  if (filtered.length>300) { var note=el('tr');var ntd=el('td');ntd.setAttribute('colspan','8');ntd.style.cssText='text-align:center;padding:8px;color:var(--senai-muted);font-size:12px';ntd.textContent='Exibindo 300 de '+filtered.length+' itens. Use os filtros para refinar.';ap(note,ntd);ap(tbody,note); }
+  ap(tbl,tbody); ap(tw,tbl); ap(c,ch,tw); ap(div,c);
+  return div;
+}
+
+
+
+// ============================================================
+// PAGE: SPRINT
+// ============================================================
+function pageSprint() {
+  var div = el('div');
+  var wis = S.workItems;
+
+  // ── Identificar sprints disponíveis ──────────────────────
+  var sprintMap = {};
+  var today = new Date(); today.setHours(0,0,0,0);
+
+  (S.iterations||[]).forEach(function(it){
+    if (!it.startDate) return;
+    var sd = localDate(it.startDate);
+    var fd = localDate(it.finishDate);
+    fd.setHours(23,59,59,0);
+    var name = it.name;
+    sprintMap[name] = {name:name, path:it.path, sd:sd, fd:fd,
+      isCurrent: sd<=today && fd>=today,
+      isPast: fd<today,
+      isFuture: sd>today
+    };
+  });
+
+  var sprintNames = Object.keys(sprintMap).sort(function(a,b){
+    return sprintMap[a].sd - sprintMap[b].sd;
+  });
+
+  var currentSprint = sprintNames.filter(function(n){ return sprintMap[n].isCurrent; })[0] || null;
+  var futureSprints = sprintNames.filter(function(n){ return sprintMap[n].isFuture; });
+  var pastSprints   = sprintNames.filter(function(n){ return sprintMap[n].isPast; });
+  var nextSprint    = futureSprints[0] || null;
+  var prevSprint    = pastSprints[pastSprints.length-1] || null;
+
+  if (!S.selSprint) S.selSprint = currentSprint || sprintNames[sprintNames.length-1];
+
+  function workDaysLeft(sprint) {
+    if (!sprint) return 0;
+    var sp = sprintMap[sprint]; if (!sp) return 0;
+    var end = new Date(sp.fd); end.setHours(23,59,59,0);
+    var cur = new Date(today);
+    var days = 0;
+    while (cur <= end) {
+      var d = cur.getDay();
+      if (d!==0 && d!==6) days++;
+      cur.setDate(cur.getDate()+1);
+    }
+    return days;
+  }
+
+  function workDaysBetween(sd, fd) {
+    var cur = new Date(sd); cur.setHours(0,0,0,0);
+    var end = new Date(fd); end.setHours(23,59,59,0);
+    var days = 0;
+    while (cur <= end) { var d=cur.getDay(); if(d!==0&&d!==6) days++; cur.setDate(cur.getDate()+1); }
+    return days;
+  }
+
+  function daysUntil(d) {
+    return Math.ceil((d - today)/(1000*60*60*24));
+  }
+  function daysSince(d) {
+    return Math.ceil((today - d)/(1000*60*60*24));
+  }
+  function fmtDate(d) {
+    return d.getDate().toString().padStart(2,'0')+'/'+(d.getMonth()+1).toString().padStart(2,'0');
+  }
+
+  // ── Filtros ──────────────────────────────────────────────
+  var fb = el('div','filter-bar');
+
+  var selSprint = document.createElement('select');
+  sprintNames.forEach(function(sn){
+    var o = document.createElement('option');
+    o.value = sn; o.textContent = sn;
+    if (sn===S.selSprint) o.selected=true;
+    selSprint.appendChild(o);
+  });
+  selSprint.onchange = function(){ S.selSprint = this.value; render(); };
+
+  if (!S.selArea2) S.selArea2='Todas';
+  var selArea = document.createElement('select');
+  ['Todas','Controladoria','Educação Profissional'].forEach(function(a){
+    var o=document.createElement('option'); o.value=a; o.textContent=a;
+    if(a===S.selArea2) o.selected=true; selArea.appendChild(o);
+  });
+  selArea.onchange=function(){ S.selArea2=this.value; render(); };
+
+  if (!S.selCollab2) S.selCollab2='Todos';
+  var collabs = [];
+  wis.forEach(function(w){
+    var a=w.fields['System.AssignedTo']; if(a&&a.displayName&&collabs.indexOf(a.displayName)===-1) collabs.push(a.displayName);
+  });
+  collabs.sort();
+  var selCollab = document.createElement('select');
+  ['Todos'].concat(collabs).forEach(function(c){
+    var o=document.createElement('option'); o.value=c; o.textContent=c;
+    if(c===S.selCollab2) o.selected=true; selCollab.appendChild(o);
+  });
+  selCollab.onchange=function(){ S.selCollab2=this.value; render(); };
+
+  ap(fb, el('span','flbl','Sprint:'), selSprint, el('span','flbl','Área:'), selArea, el('span','flbl','Colaborador:'), selCollab);
+
+  // ── Cards de contexto temporal ───────────────────────────
+  function mkSprintCard(label, spName, color) {
+    var card = el('div','kpi kpi-'+color);
+    var sp = spName ? sprintMap[spName] : null;
+    ap(card, el('div','kpi-label', label));
+    if (!sp) { ap(card, el('div','kpi-value','—')); return card; }
+    ap(card, el('div','kpi-value', spName));
+    var dateStr = fmtDate(sp.sd)+' a '+fmtDate(sp.fd);
+    var extra = '';
+    if (sp.isCurrent) extra = workDaysLeft(spName)+' dias úteis restantes';
+    else if (sp.isFuture) extra = 'Começa em '+daysUntil(sp.sd)+' dia(s)';
+    else extra = 'Encerrada há '+daysSince(sp.fd)+' dia(s)';
+    ap(card, el('div','kpi-sub', dateStr), el('div','kpi-sub', extra));
+    return card;
+  }
+
+  var ctxGrid = el('div','kpi-grid'); ctxGrid.style.gridTemplateColumns='repeat(3,1fr)';
+  ap(ctxGrid,
+    mkSprintCard('SPRINT ANTERIOR', prevSprint, 'blue'),
+    mkSprintCard('SPRINT ATUAL', currentSprint, 'orange'),
+    mkSprintCard('PRÓXIMA SPRINT', nextSprint, 'light')
+  );
+
+  ap(div, el('div','page-title','Sprint'), el('div','page-sub','Visão por sprint · 2026'), fb, ctxGrid);
+
+  if (!S.token) { ap(div, mkEmptyState('🔑','Token não configurado','Vá em Configurações e insira seu PAT do Azure DevOps.')); return div; }
+  if (!wis.length) { ap(div, mkEmptyState('📭','Sem dados','Aguardando sincronização...')); return div; }
+  if (!sprintNames.length) { ap(div, mkEmptyState('📅','Sem sprints','Nenhuma sprint encontrada para 2026. Verifique o Azure DevOps.')); return div; }
+
+  // ── Filtrar itens da sprint selecionada ──────────────────
+  var selSp = sprintMap[S.selSprint];
+  var spWis = wis.filter(function(w){
+    var ip = w.fields['System.IterationPath']||'';
+    if (!S.selSprint || !ip.includes(S.selSprint)) return false;
+    if (S.selArea2!=='Todas' && getArea(w.fields['System.AreaPath'])!==S.selArea2) return false;
+    if (S.selCollab2!=='Todos') {
+      var a=w.fields['System.AssignedTo']; if(!a||a.displayName!==S.selCollab2) return false;
+    }
+    return true;
+  });
+
+  // ── KPIs da sprint ────────────────────────────────────────
+  var total = spWis.length;
+  var done = spWis.filter(function(w){ return isDone(w.fields['System.State']||''); }).length;
+  var inprog = spWis.filter(function(w){ var s=w.fields['System.State']||''; return !isDone(s)&&!isPaused(s)&&!isCancel(s)&&s!==''; }).length;
+  var delayed = spWis.filter(function(w){ return isDelayed(w); }).length;
+  var noResp = spWis.filter(function(w){ return !w.fields['System.AssignedTo']||!w.fields['System.AssignedTo'].displayName; }).length;
+
+  var kpiGrid = el('div','kpi-grid');
+  ap(kpiGrid,
+    mkKpi('Total de itens', total, 'na sprint', 'kpi-blue'),
+    mkKpi('Concluídos', done, (total?Math.round(done/total*100):0)+'% do total', 'kpi-green'),
+    mkKpi('Em andamento', inprog, 'ativos', 'kpi-light'),
+    mkKpi('Atrasados', delayed, delayed>0?'atenção':'ok', delayed>0?'kpi-red':'kpi-green'),
+    mkKpi('Sem responsável', noResp, noResp>0?'pendente':'ok', noResp>0?'kpi-orange':'kpi-green')
+  );
+
+  // ── Barras de progresso ───────────────────────────────────
+  var pct_exec = total ? Math.round(done/total*100) : 0;
+  var pct_conf = total ? Math.round(spWis.filter(function(w){ return !isDelayed(w); }).length/total*100) : 0;
+  var pct_time = 0;
+  if (selSp) {
+    var totalDays = workDaysBetween(selSp.sd, selSp.fd);
+    var elapsed = totalDays - workDaysLeft(S.selSprint);
+    pct_time = totalDays ? Math.round(elapsed/totalDays*100) : 0;
+  }
+  var riskAlert = (pct_time - pct_exec) > 20;
+
+  var progCard = el('div','card'); progCard.style.marginBottom='18px';
+  var progHd = el('div','card-hd');
+  ap(progHd, el('span','card-title','📈 Progresso da Sprint'));
+  if (riskAlert) { var ra=el('span','badge b-red'); ra.textContent='⚠ Sprint em risco'; ap(progHd,ra); }
+  var progBody = el('div','card-body');
+
+  function mkBarSp(label, pct, color) {
+    var w2 = el('div','pbar-wrap');
+    var top = el('div','pbar-top'); ap(top, el('span','',label), el('span','',pct+'%'));
+    var bg = el('div','pbar-bg');
+    var fill = el('div','pbar-fill'); fill.style.width=pct+'%'; fill.style.background=color;
+    ap(bg,fill); ap(w2,top,bg); return w2;
+  }
+  ap(progBody,
+    mkBarSp('Execução da sprint', pct_exec, '#22c55e'),
+    mkBarSp('Conformidade (itens no prazo)', pct_conf, '#3b82f6'),
+    mkBarSp('Dias decorridos', pct_time, '#94a3b8')
+  );
+  ap(progCard, progHd, progBody);
+
+  // ── Breakdown por nível ───────────────────────────────────
+  var lvls = ['Estratégico','Tático','Operacional'];
+  var lvlColors = ['lc-blue','lc-light','lc-orange'];
+  var lvlGrid = el('div','level-grid');
+  lvls.forEach(function(lv,i){
+    var its = spWis.filter(function(w){ return getLevel(w.fields['System.Tags']||'')=== lv; });
+    var dn = its.filter(function(w){ return isDone(w.fields['System.State']||''); }).length;
+    var card = el('div','level-card '+lvlColors[i]);
+    ap(card, el('div','level-name',lv), el('div','level-count',its.length));
+    var st = el('div','level-stats');
+    var pct2 = its.length ? Math.round(dn/its.length*100) : 0;
+    ap(st, el('span','',dn+' concluídos · '+pct2+'% executado'));
+    ap(card,st); ap(lvlGrid,card);
+  });
+
+  // ── Alerta próxima sprint vazia ───────────────────────────
+  var nextWis = nextSprint ? wis.filter(function(w){ return (w.fields['System.IterationPath']||'').includes(nextSprint); }) : [];
+  var nextAlert = null;
+  if (nextSprint && nextWis.length===0) {
+    nextAlert = el('div','alert alert-warn');
+    nextAlert.textContent = '⚠ Próxima sprint sem planejamento — Nenhum item foi atribuído à '+nextSprint+' ainda.';
+  }
+
+  // ── Colaboradores × Sprint ────────────────────────────────
+  var collabMap = {};
+  spWis.forEach(function(w){
+    var a=w.fields['System.AssignedTo'];
+    var name=(a&&a.displayName)?a.displayName:'Sem responsável';
+    if(!collabMap[name]) collabMap[name]={name:name,items:[],rw:0};
+    collabMap[name].items.push(w);
+    collabMap[name].rw += parseFloat(w.fields['Microsoft.VSTS.Scheduling.RemainingWork']||w.fields['Microsoft.VSTS.Scheduling.OriginalEstimate']||0);
+  });
+
+  // capHrs agora é calculada por pessoa no forEach abaixo
+
+  var collCard = el('div','card'); collCard.style.marginBottom='18px';
+  var collHd = el('div','card-hd'); ap(collHd, el('span','card-title','👥 Colaboradores × Sprint'));
+  var collBody = el('div','card-body'); collBody.style.padding='0';
+
+  Object.keys(collabMap).sort().forEach(function(name){
+    var cd = collabMap[name];
+    var rw = cd.rw;
+    // Capacidade individual por pessoa baseada em horas semanais e duração da sprint
+    var capHrs = selSp ? getSprintCapacity(name, selSp.sd.toISOString().substring(0,10), selSp.fd.toISOString().substring(0,10)) : DEFAULT_WEEKLY_HOURS;
+    var uso = capHrs>0 ? (rw/capHrs*100) : 0;
+    var semColor = uso<40?'#164194':uso<=80?'#22c55e':uso<=100?'#eab308':'#ef4444';
+    var semLabel = uso<40?'🔵 Subutilizado':uso<=80?'🟢 Esperado':uso<=100?'🟡 Atenção':'🔴 Excesso';
+
+    var row = el('div'); row.style.cssText='border-bottom:1px solid var(--senai-border);padding:12px 16px';
+    var top2 = el('div'); top2.style.cssText='display:flex;align-items:center;gap:10px;margin-bottom:6px';
+    var av2 = mkAvatar(name,null,32);
+    av2.style.cssText=(av2.style.cssText||'')+'width:32px;height:32px;min-width:32px;background:'+avatarBg(name)+';font-size:13px';
+
+    var info2 = el('div'); info2.style.flex='1';
+    ap(info2, el('div','fw700',name));
+    var sub2 = el('div'); sub2.style.cssText='font-size:11px;color:var(--senai-muted)';
+    sub2.textContent = cd.items.length+' task(s) · RW: '+rw.toFixed(0)+'h · Cap: '+capHrs.toFixed(0)+'h · Uso: '+uso.toFixed(0)+'%';
+    ap(info2,sub2);
+
+    var sem = el('span','badge'); sem.style.cssText='background:'+semColor+'22;color:'+semColor+';border:1px solid '+semColor+'55';
+    sem.textContent=semLabel;
+
+    var barWrap = el('div'); barWrap.style.cssText='width:120px;flex-shrink:0';
+    var barBg2 = el('div','pbar-bg'); var barFill2 = el('div','pbar-fill');
+    barFill2.style.cssText='width:'+Math.min(uso,100)+'%;background:'+semColor;
+    ap(barBg2,barFill2); ap(barWrap,barBg2);
+
+    // Toggle lista de itens
+    var toggleBtn = el('button','btn btn-ghost btn-sm'); toggleBtn.textContent='▶ Itens';
+    var itemList = el('div'); itemList.style.display='none';
+    toggleBtn.onclick = function(){
+      itemList.style.display = itemList.style.display==='none'?'block':'none';
+      toggleBtn.textContent = itemList.style.display==='none'?'▶ Itens':'▼ Itens';
+    };
+
+    cd.items.forEach(function(w){
+      var it = el('div'); it.style.cssText='display:flex;align-items:center;gap:8px;padding:5px 0;border-top:1px solid #f1f5f9;font-size:12px';
+      var stBadge = mkBadge(w.fields['System.State']||'', isDelayed(w));
+      var lvBadge = mkLevelBadge(w.fields['System.Tags']||'');
+      var idLink = document.createElement('a');
+      idLink.href='https://dev.azure.com/SENAIAlagoas/Senai/_workitems/edit/'+w.fields['System.Id'];
+      idLink.target='_blank'; idLink.textContent='#'+w.fields['System.Id'];
+      idLink.style.cssText='color:var(--senai-blue);font-weight:600;white-space:nowrap';
+      var title2 = el('span',''); title2.textContent=w.fields['System.Title']||'(sem título)';
+      title2.style.cssText='flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
+      ap(it, idLink, stBadge, lvBadge, title2);
+      ap(itemList,it);
+    });
+
+    ap(top2, av2, info2, barWrap, sem, toggleBtn);
+    ap(row, top2, itemList);
+    ap(collBody, row);
+  });
+  ap(collCard, collHd, collBody);
+
+  // ── Tabela detalhada ──────────────────────────────────────
+  var tblCard = el('div','card');
+  var tblHd = el('div','card-hd');
+  ap(tblHd, el('span','card-title','📋 Itens da Sprint'));
+  var tblBody = el('div','card-body'); tblBody.style.padding='0';
+  var tblWrap = el('div','tbl-wrap');
+  var tbl = document.createElement('table');
+  var thead = document.createElement('thead');
+  var hrow = document.createElement('tr');
+  ['ID','Título','Nível','Área','Estado','RW','Responsável'].forEach(function(h){
+    var th2 = document.createElement('th'); th2.textContent=h; ap(hrow,th2);
+  });
+  ap(thead,hrow); ap(tbl,thead);
+  var tbody = document.createElement('tbody');
+  spWis.forEach(function(w){
+    var tr = document.createElement('tr');
+    if(isDelayed(w)) tr.classList.add('row-delayed');
+    var idTd = document.createElement('td');
+    var idA = document.createElement('a');
+    idA.href='https://dev.azure.com/SENAIAlagoas/Senai/_workitems/edit/'+w.fields['System.Id'];
+    idA.target='_blank'; idA.textContent='#'+w.fields['System.Id'];
+    ap(idTd,idA);
+    var titleTd = document.createElement('td'); titleTd.textContent=w.fields['System.Title']||''; titleTd.style.maxWidth='260px';
+    var lvTd = document.createElement('td'); ap(lvTd, mkLevelBadge(w.fields['System.Tags']||''));
+    var areaTd = document.createElement('td'); areaTd.textContent=getArea(w.fields['System.AreaPath']);
+    var stTd = document.createElement('td'); ap(stTd, mkBadge(w.fields['System.State']||'', isDelayed(w)));
+    var rwTd = document.createElement('td'); rwTd.textContent=(w.fields['Microsoft.VSTS.Scheduling.RemainingWork']||0)+'h';
+    var respTd = document.createElement('td');
+    var a=w.fields['System.AssignedTo']; respTd.textContent=a?a.displayName:'—';
+    [idTd,titleTd,lvTd,areaTd,stTd,rwTd,respTd].forEach(function(td){ ap(tr,td); });
+    ap(tbody,tr);
+  });
+  ap(tbl,tbody); ap(tblWrap,tbl);
+  ap(tblBody,tblWrap); ap(tblCard,tblHd,tblBody);
+
+  // ── Montar tudo ───────────────────────────────────────────
+  ap(div, kpiGrid);
+  if (nextAlert) ap(div, nextAlert);
+
+  // ── Painel Comparativo Tri-Sprint ──────────────────────────
+  (function(){
+    var spPrev = prevSprint ? sprintMap[prevSprint] : null;
+    var spCurr = currentSprint ? sprintMap[currentSprint] : (selSp || null);
+    var spNext = nextSprint ? sprintMap[nextSprint] : null;
+
+    function sprintStats(spName) {
+      if (!spName) return null;
+      var items = wis.filter(function(w){
+        var ip=w.fields['System.IterationPath']||'';
+        return ip.includes(spName);
+      });
+      var done3   = items.filter(function(w){ return isDone(w.fields['System.State']||''); }).length;
+      var delayed3= items.filter(function(w){ return isDelayed(w); }).length;
+      var active3 = items.filter(function(w){ var s=w.fields['System.State']||''; return !isDone(s)&&!isPaused(s)&&!isCancel(s)&&s!==''; }).length;
+      var rw3     = items.reduce(function(s,w){ return s+(w.fields['Microsoft.VSTS.Scheduling.RemainingWork']||0); },0);
+      var execPct = items.length ? Math.round(done3/items.length*100) : 0;
+      // Capacidade total da sprint (soma de capacidades individuais)
+      var capMap = {};
+      items.forEach(function(w){
+        var a=w.fields['System.AssignedTo']; if(!a||!a.displayName) return;
+        if (!capMap[a.displayName]) capMap[a.displayName]=true;
+      });
+      var totalCap = 0;
+      var sp2 = sprintMap[spName];
+      Object.keys(capMap).forEach(function(name){
+        totalCap += sp2 ? getSprintCapacity(name, sp2.sd.toISOString().substring(0,10), sp2.fd.toISOString().substring(0,10)) : DEFAULT_WEEKLY_HOURS;
+      });
+      return {name:spName, items:items, total:items.length, done:done3, active:active3,
+              delayed:delayed3, rw:rw3, exec:execPct, cap:totalCap};
+    }
+
+    var stats = [
+      {label:'⬅ ANTERIOR', spName:prevSprint, color:'#64748b'},
+      {label:'▶ ATUAL',     spName:currentSprint, color:'var(--senai-blue)'},
+      {label:'PRÓXIMA ➡', spName:nextSprint, color:'var(--senai-orange)'}
+    ];
+
+    var triCard = el('div','card'); triCard.style.marginBottom='16px';
+    var triHd = el('div','card-hd');
+    ap(triHd,
+      el('span','card-title','🔄 Visão Comparativa — Review & Planejamento'),
+      el('span','','Sprints Anterior · Atual · Próxima')
+    );
+    triHd.children[1].style.cssText='font-size:12px;color:var(--senai-muted);margin-left:12px';
+    var triBody = el('div','card-body'); triBody.style.padding='0';
+    var triGrid = el('div'); triGrid.style.cssText='display:grid;grid-template-columns:repeat(3,1fr);gap:0;';
+    ap(triCard, triHd, triBody);
+
+    stats.forEach(function(s, si){
+      var st = sprintStats(s.spName);
+      var col = el('div'); col.style.cssText='padding:16px;'+(si<2?'border-right:1px solid var(--senai-border)':'');
+      var hdr = el('div'); hdr.style.cssText='font-size:11px;font-weight:800;text-transform:uppercase;color:'+s.color+';margin-bottom:8px';
+      hdr.textContent = s.label+(s.spName?' · '+s.spName:'');
+      ap(col, hdr);
+
+      if (!st) {
+        var empty = el('div'); empty.style.cssText='color:var(--senai-muted);font-size:13px;text-align:center;padding:20px 0';
+        empty.textContent = s.spName ? 'Sem itens planejados' : 'Não identificada';
+        ap(col, empty);
+        ap(triGrid, col); return;
+      }
+
+      // Mini KPIs
+      var miniGrid = el('div'); miniGrid.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px';
+      function miniKpi(lbl, val, clr){
+        var k=el('div'); k.style.cssText='background:#f8fafc;border-radius:6px;padding:6px 8px;';
+        var kv=el('div'); kv.style.cssText='font-size:18px;font-weight:800;color:'+(clr||'var(--senai-blue)');
+        kv.textContent=val;
+        var kl=el('div'); kl.style.cssText='font-size:10px;color:var(--senai-muted);margin-top:2px';
+        kl.textContent=lbl;
+        ap(k,kv,kl); return k;
+      }
+      ap(miniGrid,
+        miniKpi('Total', st.total),
+        miniKpi('Concluídos', st.done, '#22c55e'),
+        miniKpi('Atrasados', st.delayed, st.delayed>0?'#ef4444':'#22c55e'),
+        miniKpi('RW acumulado', st.rw.toFixed(0)+'h', 'var(--senai-orange)')
+      );
+      ap(col, miniGrid);
+
+      // Barra de execução
+      var barWrap = el('div'); barWrap.style.cssText='margin-bottom:8px';
+      var barLbl = el('div'); barLbl.style.cssText='display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px';
+      ap(barLbl, el('span','','Execução'), el('span','',st.exec+'%'));
+      var barBg = el('div'); barBg.style.cssText='height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden';
+      var barFg = el('div'); barFg.style.cssText='height:100%;border-radius:3px;width:'+Math.min(st.exec,100)+'%;background:'+(st.exec>=70?'#22c55e':st.exec>=40?'#eab308':'#ef4444');
+      ap(barBg,barFg); ap(barWrap,barLbl,barBg); ap(col,barWrap);
+
+      // Link "Ver itens"
+      if (s.spName) {
+        var viewBtn = el('button','btn btn-ghost btn-sm'); viewBtn.style.cssText='font-size:11px;padding:3px 8px;margin-top:4px;width:100%';
+        viewBtn.textContent='🔍 Detalhar sprint';
+        (function(spNm){ viewBtn.onclick = function(){ S.selSprint=spNm; render(); }; })(s.spName);
+        ap(col, viewBtn);
+      }
+
+      ap(triGrid, col);
+    });
+
+    ap(triBody, triGrid);
+    ap(div, triCard);
+  })();
+
+  ap(div, progCard, lvlGrid, collCard, tblCard);
+  return div;
+}
+
+// ============================================================
+// PAGE: COLLABORATORS
+// ============================================================
+function pageCollaborators() {
+  var div = el('div');
+  var wis = S.workItems;
+  var today = new Date(); today.setHours(0,0,0,0);
+
+  // ── Identificar colaboradores ──────────────────────────
+  var cmap = {};
+  wis.forEach(function(w){
+    var a = w.fields['System.AssignedTo'];
+    if (a && a.displayName && !cmap[a.displayName])
+      cmap[a.displayName]={name:a.displayName,url:a._links&&a._links.avatar&&a._links.avatar.href};
+  });
+  var collabs = Object.keys(cmap).sort().map(function(k){return cmap[k];});
+
+  // ── Sprint atual ────────────────────────────────────────
+  var curIter = null;
+  (S.iterations||[]).forEach(function(it){
+    if (!it.startDate) return;
+    var sd=localDate(it.startDate), fd=localDate(it.finishDate); fd.setHours(23,59,59,0);
+    if (sd<=today && fd>=today) curIter=it;
+  });
+
+  // ── Filtros ─────────────────────────────────────────────
+  var collabOpts = [{v:'__all__',l:'Todos os colaboradores'}];
+  collabs.forEach(function(c){collabOpts.push({v:c.name,l:c.name});});
+  var fb = el('div','filter-bar');
+  var csel = mkSelect(collabOpts, S.collabName, function(v){S.collabName=v;render();}); csel.style.minWidth='200px';
+  ap(fb, el('span','flbl','Colaborador:'), csel,
+    el('span','flbl','Área:'), mkSelect(['Todas','Controladoria','Educação Profissional'], S.collabArea, function(v){S.collabArea=v;render();}),
+    mkBtn('Limpar','btn-ghost btn-sm',function(){S.collabName='__all__';S.collabArea='Todas';render();})
+  );
+
+  ap(div, el('div','page-title','Colaboradores'), el('div','page-sub','Capacidade e produtividade · '+S.year), fb);
+
+  if (!S.token){ap(div,mkEmptyState('🔑','Token não configurado','Configure o token de acesso em Configurações.',mkBtn('Ir para Configurações','btn-primary btn-sm',function(){S.page='settings';render();})));return div;}
+
+  // ════════════════════════════════════════════════════════
+  // VISÃO: UM COLABORADOR SELECIONADO — modo foco
+  // ════════════════════════════════════════════════════════
+  if (S.collabName !== '__all__') {
+    var name = S.collabName;
+    var myWis = wis.filter(function(w){
+      var a=w.fields['System.AssignedTo'];
+      return a && a.displayName===name;
+    });
+    if (S.collabArea !== 'Todas') {
+      myWis = myWis.filter(function(w){ return getArea(w.fields['System.AreaPath'])===S.collabArea; });
+    }
+
+    // Sprint atual do colaborador
+    var spWis = curIter ? myWis.filter(function(w){
+      var ip=w.fields['System.IterationPath']||'';
+      return ip.endsWith(curIter.name)||ip===curIter.path;
+    }) : [];
+
+    // ── Cabeçalho do colaborador ──────────────────────────
+    var hdrCard = el('div','card'); hdrCard.style.marginBottom='16px';
+    var hdrBody = el('div','card-body');
+    hdrBody.style.cssText='display:flex;align-items:center;gap:20px;padding:16px';
+    var bigAv = mkAvatar(name, cmap[name]&&cmap[name].url, 60);
+    bigAv.style.cssText=(bigAv.style.cssText||'')+'width:60px;height:60px;min-width:60px;font-size:22px;background:'+avatarBg(name);
+    var hdrInfo = el('div');
+    var hName = el('div'); hName.style.cssText='font-size:20px;font-weight:800;color:var(--senai-blue)'; hName.textContent=name;
+    var hSub = el('div'); hSub.style.cssText='font-size:13px;color:var(--senai-muted);margin-top:4px';
+    var area2 = S.collabArea!=='Todas'?S.collabArea:'todas as áreas';
+    hSub.textContent='Área: '+area2+' · '+(curIter?'Sprint atual: '+curIter.name+' · '+spWis.length+' item(ns) atribuído(s)':'Sprint atual não identificada');
+    ap(hdrInfo, hName, hSub); ap(hdrBody, bigAv, hdrInfo); ap(hdrCard, hdrBody);
+
+    // ── KPIs pessoais da sprint atual ─────────────────────
+    var spDone2    = spWis.filter(function(w){ return isDone(w.fields['System.State']||''); });
+    var spActive2  = spWis.filter(function(w){ var s=w.fields['System.State']||''; return !isDone(s)&&!isPaused(s)&&!isCancel(s); });
+    var spDelayed2 = spWis.filter(function(w){ return isDelayed(w); });
+    var spRW       = spWis.reduce(function(s,w){ return s+(w.fields['Microsoft.VSTS.Scheduling.RemainingWork']||0); }, 0);
+    var kg = el('div','kpi-grid'); kg.style.gridTemplateColumns='repeat(5,1fr)';
+    ap(kg,
+      mkKpi('Itens na sprint', spWis.length, null, 'kpi-blue'),
+      mkKpi('Concluídos', spDone2.length, null, 'kpi-green'),
+      mkKpi('Em andamento', spActive2.length, null, 'kpi-light'),
+      mkKpi('Atrasados', spDelayed2.length, null, spDelayed2.length>0?'kpi-red':'kpi-green'),
+      mkKpi('Remaining Work', spRW.toFixed(0)+'h', null, 'kpi-orange')
+    );
+
+    // ── Barra de esforço ──────────────────────────────────
+    function wdCount(sd,fd){ if(!sd||!fd) return 0; var cur=localDate(typeof sd==="string"?sd:sd.toISOString().substring(0,10)),end=localDate(typeof fd==="string"?fd:fd.toISOString().substring(0,10));end.setHours(23,59,59,0);var n=0;while(cur<=end){var d=cur.getDay();if(d!==0&&d!==6)n++;cur.setDate(cur.getDate()+1);}return n; }
+    var capHrs3 = curIter ? getSprintCapacity(colabName, curIter.startDate, curIter.finishDate) : 0;
+    var uso3 = capHrs3>0 ? (spRW/capHrs3*100) : 0;
+    var semC3 = uso3<40?'#164194':uso3<=80?'#22c55e':uso3<=100?'#eab308':'#ef4444';
+    var semL3 = uso3<40?'🔵 Subutilizado':uso3<=80?'🟢 Dentro do esperado':uso3<=100?'🟡 Atenção':'🔴 Excesso';
+
+    var efCard = el('div','card'); efCard.style.marginBottom='16px';
+    var efHd = el('div','card-hd'); ap(efHd, el('span','card-title','⚡ Esforço na Sprint'));
+    var efBody = el('div','card-body');
+    var efGrid = el('div'); efGrid.style.cssText='display:grid;grid-template-columns:200px 1fr;gap:5px 12px;font-size:13px;margin-bottom:10px';
+    var efPairs=[['Capacidade da sprint:',capHrs3.toFixed(0)+'h'],['Remaining Work:',spRW.toFixed(0)+'h'],['Uso da capacidade:',uso3.toFixed(0)+'%'],['Meta de ocupação:','68,75% da capacidade']];
+    efPairs.forEach(function(p){ var la=el('div'); la.style.color='var(--senai-muted)'; la.textContent=p[0]; var va=el('div'); va.textContent=p[1]; ap(efGrid,la,va); });
+    var pbarBg=el('div','pbar-bg'); var pbarFill=el('div','pbar-fill');
+    pbarFill.style.cssText='width:'+Math.min(uso3,100)+'%;background:'+semC3;
+    ap(pbarBg,pbarFill);
+    var semTag3=el('span','badge'); semTag3.style.cssText='background:'+semC3+'22;color:'+semC3+';border:1px solid '+semC3+'55;margin-top:8px;display:inline-block';
+    semTag3.textContent=semL3;
+    ap(efBody,efGrid,pbarBg,semTag3); ap(efCard,efHd,efBody);
+
+    // ── Apontamentos de parametrização ────────────────────
+    var govProbs = myWis.filter(function(w){ return govIssues(w).length>0; });
+    var govCard = el('div','card'); govCard.style.marginBottom='16px';
+    var govHd = el('div','card-hd');
+    var govTitle = el('span','card-title'); govTitle.textContent='⚠ Apontamentos de parametrização';
+    var govToggle = el('button','btn btn-ghost btn-sm'); govToggle.textContent='▶ Ver';
+    var govBodyEl = el('div','card-body'); govBodyEl.style.display='none';
+    govToggle.onclick=function(){ var s2=govBodyEl.style.display==='none'; govBodyEl.style.display=s2?'block':'none'; govToggle.textContent=s2?'▼ Ocultar':'▶ Ver'; };
+    ap(govHd, govTitle, govToggle);
+    if (!govProbs.length) {
+      govTitle.textContent='✅ Nenhuma inconsistência encontrada';
+      govToggle.style.display='none';
+    } else {
+      govTitle.textContent='⚠ Apontamentos de parametrização ('+govProbs.length+' iten(s))';
+      var govTbl = document.createElement('table'); govTbl.style.width='100%';
+      var gThead = el('thead'); var gHrow = el('tr');
+      ['Item','Problema','Ação sugerida',''].forEach(function(h){ ap(gHrow,el('th','',h)); });
+      ap(gThead,gHrow); ap(govTbl,gThead); var gTbody = el('tbody');
+      govProbs.forEach(function(w){
+        govIssues(w).forEach(function(iss){
+          var tr2=el('tr');
+          var tdId=el('td'); var al=document.createElement('a');
+          al.href='https://dev.azure.com/SENAIAlagoas/Senai/_workitems/edit/'+w.fields['System.Id'];
+          al.target='_blank'; al.textContent='#'+w.fields['System.Id']; al.style.cssText='color:var(--senai-blue);font-weight:700';
+          ap(tdId,al);
+          var sugest=iss==='Sem tag'?'Classificar como Estratégico/Tático/Operacional':iss==='Sem parent'?'Vincular ao plano de ação':iss==='Sem sprint'?'Atribuir a uma sprint':'Corrigir';
+          var tdLink=el('td'); var openA=document.createElement('a'); openA.href=al.href; openA.target='_blank';
+          openA.textContent='→ Abrir no Azure'; openA.style.cssText='color:var(--senai-blue);font-size:12px;white-space:nowrap';
+          ap(tdLink,openA);
+          ap(tr2,tdId,el('td','',iss),el('td','',sugest),tdLink); ap(gTbody,tr2);
+        });
+      });
+      ap(govTbl,gTbody); ap(govBodyEl,govTbl);
+    }
+    ap(govCard,govHd,govBodyEl);
+
+    // ── Itens da sprint atual agrupados por nível ─────────
+    var sprintCard = el('div','card'); sprintCard.style.marginBottom='16px';
+    var spHd2 = el('div','card-hd'); ap(spHd2, el('span','card-title','📌 Itens da Sprint Atual'+(curIter?' — '+curIter.name:'')));
+    var spBody2 = el('div','card-body'); spBody2.style.padding='0';
+    // Agrupar todos os itens da sprint por nível (incluindo todos os níveis possíveis)
+    var allLevels = ['Estratégico','Tático','Operacional','Plano de trabalho','Apoio a gestão','T.I.','Sem tag'];
+    var renderedIds = {};
+    allLevels.forEach(function(lv){
+      var lvItems = spWis.filter(function(w){
+        var wlv = getLevel(w.fields['System.Tags']||'');
+        return wlv === lv;
+      });
+      if(!lvItems.length) return;
+      var grpHd = el('div'); grpHd.style.cssText='padding:10px 16px;background:#f8fafc;font-weight:700;font-size:12px;border-bottom:1px solid var(--senai-border);color:var(--senai-blue)';
+      grpHd.textContent=lv+' ('+lvItems.length+')';
+      ap(spBody2, grpHd);
+      lvItems.forEach(function(w){
+        renderedIds[w.id]=true;
+        var row=el('div'); row.style.cssText='display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid #f1f5f9;'+(isDelayed(w)?'background:#fff5f5':'');
+        var idA=document.createElement('a');
+        idA.href='https://dev.azure.com/SENAIAlagoas/Senai/_workitems/edit/'+w.fields['System.Id'];
+        idA.target='_blank'; idA.textContent='#'+w.fields['System.Id'];
+        idA.style.cssText='color:var(--senai-blue);font-weight:700;min-width:52px;font-size:12px';
+        var ttl2=el('span'); ttl2.textContent=w.fields['System.Title']||''; ttl2.style.cssText='flex:1;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
+        var rw2=el('span'); rw2.style.cssText='font-size:12px;color:var(--senai-muted);white-space:nowrap';
+        rw2.textContent=(w.fields['Microsoft.VSTS.Scheduling.RemainingWork']||0)+'h RW';
+        var conf2=el('span'); conf2.textContent=isDelayed(w)?'⚠':'✓'; conf2.style.color=isDelayed(w)?'#ef4444':'#22c55e';
+        ap(row,idA,mkLevelBadge(w.fields['System.Tags']||''),mkBadge(w.fields['System.State']||'', isDelayed(w)),ttl2,rw2,conf2);
+        ap(spBody2,row);
+      });
+    });
+    // Itens sem classificação reconhecida (fallback)
+    var unclassified = spWis.filter(function(w){ return !renderedIds[w.id]; });
+    if (unclassified.length) {
+      var grpHd2 = el('div'); grpHd2.style.cssText='padding:10px 16px;background:#f8fafc;font-weight:700;font-size:12px;border-bottom:1px solid var(--senai-border);color:#94a3b8';
+      grpHd2.textContent='Sem classificação ('+unclassified.length+')';
+      ap(spBody2, grpHd2);
+      unclassified.forEach(function(w){
+        var row=el('div'); row.style.cssText='display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid #f1f5f9;'+(isDelayed(w)?'background:#fff5f5':'');
+        var idA=document.createElement('a');
+        idA.href='https://dev.azure.com/SENAIAlagoas/Senai/_workitems/edit/'+w.fields['System.Id'];
+        idA.target='_blank'; idA.textContent='#'+w.fields['System.Id'];
+        idA.style.cssText='color:var(--senai-blue);font-weight:700;min-width:52px;font-size:12px';
+        var ttl2=el('span'); ttl2.textContent=w.fields['System.Title']||''; ttl2.style.cssText='flex:1;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
+        var rw2=el('span'); rw2.style.cssText='font-size:12px;color:var(--senai-muted);white-space:nowrap';
+        rw2.textContent=(w.fields['Microsoft.VSTS.Scheduling.RemainingWork']||0)+'h RW';
+        var conf2=el('span'); conf2.textContent=isDelayed(w)?'⚠':'✓'; conf2.style.color=isDelayed(w)?'#ef4444':'#22c55e';
+        ap(row,idA,mkBadge(w.fields['System.State']||'', isDelayed(w)),ttl2,rw2,conf2);
+        ap(spBody2,row);
+      });
+    }
+    if (!spWis.length) {
+      var noSp=el('div'); noSp.style.cssText='padding:16px;color:var(--senai-muted);font-size:13px';
+      noSp.textContent='Nenhum item atribuído na sprint atual.'; ap(spBody2,noSp);
+    }
+    ap(sprintCard,spHd2,spBody2);
+
+    // ── Histórico de desempenho por sprint ────────────────
+    var iters2026 = (S.iterations||[]).filter(function(it){
+      return it.startDate && it.startDate.startsWith('2026');
+    }).sort(function(a,b){ return localDate(a.startDate)-localDate(b.startDate); });
+
+    var histCard = el('div','card');
+    var histHd = el('div','card-hd'); ap(histHd, el('span','card-title','📊 Histórico por Sprint · 2026'));
+    var histWrap = el('div','tbl-wrap');
+    var histTbl = document.createElement('table');
+    var histThead = el('thead'); var histHrow = el('tr');
+    ['Sprint','Itens','Concluídos','Execução','Conformidade','RW','Capacidade','Uso','Situação'].forEach(function(h){ ap(histHrow,el('th','',h)); });
+    ap(histThead,histHrow); ap(histTbl,histThead);
+    var histTbody = el('tbody');
+    iters2026.forEach(function(it){
+      var spItems = myWis.filter(function(w){
+        var ip=w.fields['System.IterationPath']||'';
+        return ip.endsWith(it.name)||ip===it.path;
+      });
+      if(!spItems.length) return;
+      var dn=spItems.filter(function(w){ return isDone(w.fields['System.State']||''); }).length;
+      var dl=spItems.filter(function(w){ return isDelayed(w); }).length;
+      var rw3=spItems.reduce(function(s,w){ return s+(w.fields['Microsoft.VSTS.Scheduling.RemainingWork']||0); },0);
+      function wdC2(sd,fd){ if(!sd||!fd)return 0; var c2=localDate(typeof sd==='string'?sd:sd.toISOString().substring(0,10)),e=localDate(typeof fd==='string'?fd:fd.toISOString().substring(0,10));e.setHours(23,59,59,0);var n=0;while(c2<=e){var d=c2.getDay();if(d!==0&&d!==6)n++;c2.setDate(c2.getDate()+1);}return n; }
+      var cap4=wdC2(it.startDate,it.finishDate)*8;
+      var exec4=spItems.length?Math.round(dn/spItems.length*100):0;
+      var conf4=spItems.length?Math.round((spItems.length-dl)/spItems.length*100):0;
+      var uso4=cap4>0?Math.round(rw3/cap4*100):0;
+      var sit4=uso4<40?'🔵':uso4<=80?'🟢':uso4<=100?'🟡':'🔴';
+      var tr3=el('tr');
+      [it.name,spItems.length,dn,exec4+'%',conf4+'%',rw3.toFixed(0)+'h',cap4.toFixed(0)+'h',uso4+'%',sit4].forEach(function(v){
+        ap(tr3,el('td','',String(v)));
+      });
+      ap(histTbody,tr3);
+    });
+    ap(histTbl,histTbody); ap(histWrap,histTbl);
+    var histBody=el('div','card-body'); histBody.style.padding='0'; ap(histBody,histWrap); ap(histCard,histHd,histBody);
+
+    ap(div, hdrCard, kg, efCard, govCard, sprintCard, histCard);
+    return div;
+  }
+
+  // ════════════════════════════════════════════════════════
+  // VISÃO: TODOS — grid de cards resumidos (modo gestor)
+  // ════════════════════════════════════════════════════════
+  var cg = el('div','collab-grid');
+  collabs.forEach(function(collab){
+    if (S.collabArea!=='Todas') {
+      var hasItems = wis.some(function(w){
+        var a=w.fields['System.AssignedTo'];
+        return a&&a.displayName===collab.name&&getArea(w.fields['System.AreaPath'])===S.collabArea;
+      });
+      if(!hasItems) return;
+    }
+    var cItems = wis.filter(function(w){ var a=w.fields['System.AssignedTo']; return a&&a.displayName===collab.name; });
+    var cTasks  = cItems.filter(function(w){ var t=w.fields['System.WorkItemType']; return t==='Tarefa'||t==='Task'; });
+    var cEx = calcExec(cTasks), cCn = calcConf(cTasks);
+    var levels = ['Estratégico','Tático','Operacional'];
+    var cc = el('div','collab-card'); cc.style.cursor='pointer';
+    cc.onclick = function(){ S.collabName=collab.name; render(); };
+    ap(cc, mkAvatar(collab.name, collab.url, 40));
+    var ci = el('div','collab-info');
+    ap(ci, el('div','collab-name', collab.name));
+    ap(ci, el('div','collab-stats', cItems.length+' itens · '+cEx+'% exec · '+cCn+'% conf'));
+    var cb = el('div','collab-bars');
+    levels.forEach(function(lvl){
+      var n=cItems.filter(function(w){return getLevel(w.fields['System.Tags']||'')===lvl;}).length;
+      var p=cItems.length?pct(n,cItems.length):0;
+      ap(cb, mkBar(p,lvl,lvl==='Estratégico'?'var(--senai-blue)':lvl==='Tático'?'var(--senai-light-blue)':'var(--senai-orange)'));
+    });
+    // Botão "Copiar link" para modo colaborador
+    var linkRow = el('div'); linkRow.style.cssText='display:flex;justify-content:flex-end;padding:4px 0 0 0';
+    var linkBtn = el('button','btn btn-ghost btn-sm'); linkBtn.textContent='🔗 Copiar link';
+    linkBtn.style.cssText=(linkBtn.style.cssText||'')+'font-size:11px;padding:3px 8px';
+    (function(name, url){
+      linkBtn.onclick = function(e){
+        e.stopPropagation();
+        var baseUrl = window.location.href.split('?')[0];
+        var token64 = btoa(S.token||'');
+        var link = baseUrl+'?colaborador='+encodeURIComponent(name)+'&token='+token64;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(link).then(function(){
+            showToast('✅ Link copiado! Compartilhe com '+name+'.');
+          });
+        } else {
+          var ta = document.createElement('textarea');
+          ta.value = link; ta.style.position='fixed'; ta.style.opacity='0';
+          document.body.appendChild(ta); ta.select();
+          document.execCommand('copy'); document.body.removeChild(ta);
+          showToast('✅ Link copiado! Compartilhe com '+name+'.');
+        }
+      };
+    })(collab.name, collab.url);
+    ap(linkRow, linkBtn); ap(ci, cb, linkRow); ap(cc,ci); ap(cg,cc);
+  });
+
+  // Botão "Exportar todos os links"
+  var exportBtn = el('button','btn btn-ghost btn-sm'); exportBtn.textContent='⬇ Exportar todos os links';
+  exportBtn.style.marginBottom='16px';
+  exportBtn.onclick = function(){
+    var baseUrl = window.location.href.split('?')[0];
+    var token64 = btoa(S.token||'');
+    var lines = Object.keys(cmap).sort().map(function(name){
+      return name+' → '+baseUrl+'?colaborador='+encodeURIComponent(name)+'&token='+token64;
+    });
+    var blob = new Blob([lines.join('\n')], {type:'text/plain'});
+    var a = document.createElement('a'); a.href=URL.createObjectURL(blob);
+    a.download='links_colaboradores.txt'; a.click();
+    showToast('✅ Links exportados com sucesso!');
+  };
+  ap(div, exportBtn);
+  ap(div, cg);
+  return div;
+}
+
+
+function pageGovernance() {
+  var div = el('div');
+  var wis = S.workItems;
+
+  var filtWis = S.govArea==='Todas'?wis:wis.filter(function(w){return getArea(w.fields['System.AreaPath'])===S.govArea;});
+
+  var noArea = filtWis.filter(function(w){return getArea(w.fields['System.AreaPath'])==='Outro';});
+    var noTag = filtWis.filter(function(w){return !(w.fields['System.Tags']||'').trim();});
+  var noParent = filtWis.filter(function(w){var p=w.fields['System.Parent'];return !p||p===0;});
+  var noSprint = filtWis.filter(function(w){var ip=w.fields['System.IterationPath']||'';return ip==='SENAI'||ip.indexOf('Sprint')<0;});
+  var noResp = filtWis.filter(function(w){return !w.fields['System.AssignedTo']||!w.fields['System.AssignedTo'].displayName;});
+  var overdueItems = filtWis.filter(function(w){
+    var s=w.fields['System.State']||'';
+    if(isDone(s)||isPaused(s)||isCancel(s))return false;
+    var iter=getIter(w.fields['System.IterationPath']||'');
+    return iter&&iter.finishDate&&localDate(iter.finishDate)<new Date();
+  });
+
+  var wellParam = filtWis.filter(function(w){ return govIssues(w).length===0; }).length;
+  var score = filtWis.length ? pct(wellParam, filtWis.length) : 0;
+  var scoreColor = score>=85?'#15803d':score>=70?'#854d0e':'#991b1b';
+  var scoreLabel = score>=85?'🟢 Saudável':score>=70?'🟡 Atenção':'🔴 Crítico';
+
+  var fb=el('div','filter-bar');
+  ap(fb,el('span','flbl','Área:'),mkSelect(['Todas','Controladoria','Educação Profissional'],S.govArea,function(v){S.govArea=v;render();}));
+
+  ap(div,el('div','page-title','Governança'),el('div','page-sub','Saúde de parametrização · '+S.year),fb);
+  if (!S.token){ap(div,mkEmptyState('🔑','Token não configurado','Configure o token de acesso em Configurações.',mkBtn('Ir para Configurações','btn-primary btn-sm',function(){S.page='settings';render();})));return div;}
+
+  // Score card
+  var gsc=el('div','gov-score-card');
+  var circle=el('div','gov-score-circle'); circle.style.background=scoreColor; circle.textContent=score+'%';
+  var ginfo=el('div'); ginfo.style.flex='1';
+  var stitle=el('div'); stitle.style.cssText='font-size:20px;font-weight:700;color:var(--senai-text)'; ap(stitle,txt(scoreLabel+' — '+score+'% dos itens bem parametrizados'));
+  var ssub=el('div'); ssub.style.cssText='font-size:13px;color:var(--senai-muted);margin-top:4px'; ap(ssub,txt(wellParam+' de '+filtWis.length+' itens com todos os campos preenchidos'));
+  ap(ginfo,stitle,ssub);
+  ap(gsc,circle,ginfo);
+  ap(div,gsc);
+
+  // Badges de alerta
+  var gb=el('div','gov-badges');
+  ap(gb,mkGovBadge('🗺️ Sem área',noArea.length,noArea.length?'badge b-red':'badge b-green'),mkGovBadge('🏷️ Sem tag',noTag.length,noTag.length?'badge b-yellow':'badge b-green'),mkGovBadge('👻 Sem parent',noParent.length,noParent.length?'badge b-orange':'badge b-green'),mkGovBadge('📅 Sem sprint',noSprint.length,noSprint.length?'badge b-yellow':'badge b-green'),mkGovBadge('👤 Sem responsável',noResp.length,noResp.length?'badge b-red':'badge b-green'),mkGovBadge('⏰ Vencidos',overdueItems.length,overdueItems.length>5?'badge b-red':overdueItems.length>0?'badge b-orange':'badge b-green'));
+  ap(div,gb);
+
+  // Gov sections
+  var sections = [
+    {key:'noarea', title:'🗺️ Itens sem área válida ('+noArea.length+')', items:noArea, cols:['ID','Título','Sprint','Nível','Estado','Responsável']},
+    {key:'notag', title:'🏷️ Itens sem tag ('+noTag.length+')', items:noTag, cols:['ID','Título','Área','Sprint','Responsável']},
+    {key:'noparent', title:'👻 Itens sem parent ('+noParent.length+')', items:noParent, cols:['ID','Título','Área','Estado','Responsável']},
+    {key:'nosprint', title:'📅 Itens sem sprint ('+noSprint.length+')', items:noSprint, cols:['ID','Título','Área','Nível','Estado']},
+    {key:'noresp', title:'👤 Itens sem responsável ('+noResp.length+')', items:noResp, cols:['ID','Título','Área','Sprint','Estado']},
+    {key:'overdue', title:'⏰ Itens vencidos sem conclusão ('+overdueItems.length+')', items:overdueItems, cols:['ID','Título','Área','Sprint','Estado','Dias Atraso']},
+  ];
+
+  sections.forEach(function(sec){
+    var gs=el('div','gov-section');
+    var hd=el('div','gov-section-hd');
+    var toggle=el('span','',''); toggle.style.cssText='font-size:11px;color:var(--senai-muted);min-width:16px';
+    var isOpen=S.govSection[sec.key];
+    toggle.textContent = isOpen?'▲':'▼';
+    ap(hd,el('span','gov-section-title',sec.title),toggle);
+    hd.onclick=(function(k){return function(){S.govSection[k]=!S.govSection[k];render();};})(sec.key);
+    ap(gs,hd);
+    if (isOpen) {
+      var body=el('div','gov-section-body');
+      if (!sec.items.length) { ap(body,el('div','','')); body.firstChild.style.cssText='padding:14px 16px;color:var(--senai-muted);font-size:13px'; body.firstChild.textContent='Nenhum item com esta inconsistência.'; }
+      else {
+        var tw=el('div','tbl-wrap');
+        var tbl=el('table'); var thead=el('thead'); var tr0=el('tr');
+        sec.cols.forEach(function(h){ap(tr0,el('th','',h));});
+        ap(thead,tr0); ap(tbl,thead); var tbody=el('tbody');
+        sec.items.slice(0,100).forEach(function(w){
+          var f=w.fields,id=f['System.Id'];
+          var iter=getIter(f['System.IterationPath']||'');
+          var idlink=document.createElement('a'); idlink.href=DEVOPS+id; idlink.target='_blank'; idlink.style.fontWeight='700'; idlink.textContent='#'+id;
+          var td0=el('td'); ap(td0,idlink);
+          var ttd=el('td'); ttd.style.cssText='max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'; ttd.title=f['System.Title']; ap(ttd,txt(f['System.Title']));
+          var tr=el('tr'); ap(tr,td0,ttd);
+          // area
+          if (sec.cols.indexOf('Área')>=0) { var tda=el('td'); ap(tda,el('span','text-sm',getArea(f['System.AreaPath']))); ap(tr,tda); }
+          // sprint
+          if (sec.cols.indexOf('Sprint')>=0) { ap(tr,el('td','text-sm',iter?iter.name:'—')); }
+          // responsavel
+          if (sec.cols.indexOf('Responsável')>=0) { var a=f['System.AssignedTo']||{}; ap(tr,el('td','text-sm',a.displayName||'—')); }
+          // estado
+          if (sec.cols.indexOf('Estado')>=0) { var tds=el('td'); ap(tds,mkBadge(f['System.State']||'',isDelayed(w))); ap(tr,tds); }
+          // nivel
+          if (sec.cols.indexOf('Nível')>=0) { var tdn=el('td'); ap(tdn,mkLevelBadge(getLevel(f['System.Tags']||''))); ap(tr,tdn); }
+          // dias atraso
+          if (sec.cols.indexOf('Dias Atraso')>=0) {
+            var fin=iter&&iter.finishDate?localDate(iter.finishDate):null;
+            var days=fin?Math.floor((Date.now()-fin.getTime())/86400000):0;
+            var tdd=el('td'); ap(tdd,el('span','badge '+(days>30?'b-red':days>14?'b-orange':'b-yellow'),days+'d')); ap(tr,tdd);
+          }
+          ap(tbody,tr);
+        });
+        ap(tbl,tbody); ap(tw,tbl); ap(body,tw);
+      }
+      ap(gs,body);
+    }
+    ap(div,gs);
+  });
+
+
+  // ── SEÇÃO: INCONSISTÊNCIAS POR USUÁRIO ──────────────────────────────────
+  var userIssues = {};
+  filtWis.forEach(function(w){
+    var issues = govIssues(w);
+    if (!issues.length) return;
+    var a = w.fields['System.AssignedTo'];
+    var name = (a && a.displayName) ? a.displayName : '__sem_responsavel__';
+    if (!userIssues[name]) userIssues[name] = {name: name, items: [], counts: {notag:0, noparent:0, nosprint:0, noresp:0, noarea:0, overdue:0}};
+    userIssues[name].items.push(w);
+    issues.forEach(function(iss){
+      if (iss==='Sem tag') userIssues[name].counts.notag++;
+      else if (iss==='Sem parent') userIssues[name].counts.noparent++;
+      else if (iss==='Sem sprint') userIssues[name].counts.nosprint++;
+      else if (iss==='Sem responsável') userIssues[name].counts.noresp++;
+    });
+    if (getArea(w.fields['System.AreaPath'])==='Outro') userIssues[name].counts.noarea++;
+    if (isDelayed(w)) userIssues[name].counts.overdue++;
+  });
+
+  var userKeys = Object.keys(userIssues).sort(function(a,b){
+    return userIssues[b].items.length - userIssues[a].items.length;
+  });
+
+  if (userKeys.length) {
+    var uCard = el('div','card'); uCard.style.marginBottom='18px';
+    var uHd = el('div','card-hd');
+    ap(uHd, el('span','card-title','👤 Inconsistências por Responsável'));
+    var uHint = el('span','text-sm text-muted'); uHint.textContent = 'Clique em "Gerar Email" para copiar o rascunho';
+    ap(uHd, uHint);
+    var uBody = el('div','card-body'); uBody.style.padding='0';
+
+    userKeys.forEach(function(uname){
+      var ud = userIssues[uname];
+      var total = ud.items.length;
+      var displayName = uname === '__sem_responsavel__' ? '⚠ Sem responsável atribuído' : uname;
+
+      var uRow = el('div');
+      uRow.style.cssText='border-bottom:1px solid var(--senai-border);padding:12px 16px';
+
+      // Header da linha
+      var uTop = el('div'); uTop.style.cssText='display:flex;align-items:center;gap:10px;margin-bottom:8px';
+      var av = uname!=='__sem_responsavel__' ? mkAvatar(uname,null,32) : el('div','avatar',uname[0]||'?');
+      av.style.cssText=(av.style.cssText||'')+'width:32px;height:32px;min-width:32px;background:'+avatarBg(uname)+';font-size:13px';
+
+      var uInfo = el('div'); uInfo.style.flex='1';
+      ap(uInfo, el('div','fw700',displayName));
+      var uSub = el('div','text-sm text-muted'); uSub.textContent = total + ' item'+(total!==1?'s':'')+' com inconsistência';
+      ap(uInfo, uSub);
+
+      // Badges de contagem
+      var uBadges = el('div'); uBadges.style.cssText='display:flex;gap:6px;flex-wrap:wrap';
+      var badgeDefs = [
+        {key:'noarea', label:'Sem área', cls:'b-red'},
+        {key:'notag', label:'Sem tag', cls:'b-yellow'},
+        {key:'nosprint', label:'Sem sprint', cls:'b-yellow'},
+        {key:'noresp', label:'Sem resp.', cls:'b-orange'},
+        {key:'overdue', label:'Vencido', cls:'b-red'},
+        {key:'noparent', label:'Sem parent', cls:'b-orange'},
+      ];
+      badgeDefs.forEach(function(bd){
+        var cnt = ud.counts[bd.key];
+        if (!cnt) return;
+        var b = el('span','badge '+bd.cls); b.textContent = bd.label+': '+cnt; ap(uBadges,b);
+      });
+
+      // Botão gerar email
+      var emailBtn = mkBtn('✉ Gerar Email','btn-outline btn-sm', function(ud_,uname_){
+        return function(){ generateAndShowEmail(ud_, uname_); };
+      }(ud, uname));
+
+      ap(uTop, av, uInfo, uBadges, emailBtn);
+      ap(uRow, uTop);
+
+      // Área de email (oculta inicialmente)
+      var emailArea = el('div'); emailArea.id = 'email-area-'+uname.replace(/[^a-z0-9]/gi,'_');
+      emailArea.style.display='none';
+      ap(uRow, emailArea);
+
+      ap(uBody, uRow);
+    });
+    ap(uCard, uHd, uBody);
+    ap(div, uCard);
+  }
+
+  function generateAndShowEmail(ud, uname) {
+    var areaId = 'email-area-'+uname.replace(/[^a-z0-9]/gi,'_');
+    var areaEl = document.getElementById(areaId);
+    if (!areaEl) return;
+    if (areaEl.style.display !== 'none') { areaEl.style.display='none'; return; }
+
+    var firstName = uname==='__sem_responsavel__' ? 'Responsável' : uname.split(' ')[0];
+    var lines = [];
+    lines.push('Olá, ' + firstName + '! Tudo bem? 😊');
+    lines.push('');
+    lines.push('Passando aqui para te avisar sobre algumas pendências que apareceram no nosso painel de monitoramento do Azure DevOps. São ajustes simples, mas que fazem bastante diferença para a gente conseguir acompanhar o andamento das atividades da Educação Profissional direitinho!');
+    lines.push('');
+    lines.push('Encontrei ' + ud.items.length + ' item(ns) com informações que precisam de uma atualização rápida:');
+    lines.push('');
+
+    if (ud.counts.noarea) {
+      lines.push('📍 SEM ÁREA CLASSIFICADA (' + ud.counts.noarea + ' item(ns))');
+      lines.push('   O campo "Area Path" está em branco ou fora das áreas válidas (Controladoria / Educação Profissional).');
+      lines.push('   Por que importa: sem área definida, o item fica invisível nos nossos painéis e não entra nos indicadores da equipe.');
+      lines.push('   O que fazer: é só abrir o item no Azure e escolher a área certa (Controladoria ou Educação Profissional).');
+      lines.push('');
+    }
+    if (ud.counts.notag) {
+      lines.push('🏷️ SEM TAG DE CLASSIFICAÇÃO (' + ud.counts.notag + ' item(ns))');
+      lines.push('   O campo "Tags" está vazio — não é possível identificar se o item é Estratégico, Tático ou Operacional.');
+      lines.push('   Por que importa: sem a tag, a gente não consegue saber se a atividade é Estratégica, Tática ou Operacional.');
+      lines.push('   O que fazer: adicione uma das tags no campo correspondente: Estratégico, Tático, Operacional, Plano de trabalho, Apoio a gestão ou T.I.');
+      lines.push('');
+    }
+    if (ud.counts.nosprint) {
+      lines.push('📅 SEM SPRINT DEFINIDA (' + ud.counts.nosprint + ' item(ns))');
+      lines.push('   O campo "Iteration Path" não está associado a nenhuma sprint (ex: "SENAI\Sprint XX").');
+      lines.push('   Por que importa: sem sprint, o item some do planejamento e a gente não consegue acompanhar por período.');
+      lines.push('   O que fazer: abra o item e selecione a sprint correspondente no campo "Iteration Path".');
+      lines.push('');
+    }
+    if (ud.counts.noparent) {
+      lines.push('🔗 SEM ITEM PAI VINCULADO (' + ud.counts.noparent + ' item(ns))');
+      lines.push('   O item não está associado a nenhum Plano de Ação ou estrutura hierárquica superior.');
+      lines.push('   Por que importa: sem o vínculo com o item pai, o progresso do Plano de Ação não é calculado corretamente.');
+      lines.push('   O que fazer: vincule o item ao Plano de Ação correspondente usando o campo "Parent" no Azure.');
+      lines.push('');
+    }
+    if (ud.counts.overdue) {
+      lines.push('⏰ ITENS VENCIDOS SEM CONCLUSÃO (' + ud.counts.overdue + ' item(ns))');
+      lines.push('   Há itens com a sprint encerrada que ainda estão com status em andamento.');
+      lines.push('   Por que importa: itens em aberto após o fim da sprint afetam nossos indicadores de conformidade.');
+      lines.push('   O que fazer: atualize o status para Concluído, Cancelado ou Pausado — ou mova para a sprint atual, se ainda estiver em andamento.');
+      lines.push('');
+    }
+
+    lines.push('Para facilitar, seguem os IDs dos itens com pendência:');
+    lines.push(ud.items.map(function(w){ return '#'+w.fields['System.Id']; }).join(', '));
+    lines.push('');
+    lines.push('Se tiver qualquer dúvida sobre como fazer esses ajustes no Azure, é só me chamar — fico feliz em ajudar! 🙂');
+    lines.push('');
+    lines.push('Obrigada pela atenção e pelo cuidado com as informações. A gente só consegue monitorar bem quando os dados estão certinhos!');
+    lines.push('');
+    lines.push('Abraço,');
+    lines.push('Clarisse');
+    lines.push('Educação Profissional · SENAI DR Alagoas');
+
+    var emailText = lines.join('\n');
+
+    areaEl.innerHTML = '';
+    areaEl.style.cssText='margin-top:12px;padding:12px;background:#f8fafc;border:1px solid var(--senai-border);border-radius:8px';
+
+    var ta = document.createElement('textarea');
+    ta.value = emailText;
+    ta.style.cssText='width:100%;height:260px;font-size:12px;font-family:monospace;border:1px solid var(--senai-border);border-radius:6px;padding:10px;resize:vertical;background:#fff;color:var(--senai-text)';
+    ta.readOnly = true;
+
+    var copyBtn = mkBtn('📋 Copiar Email','btn-primary btn-sm', function(t_){ return function(){
+      t_.select(); document.execCommand('copy');
+      copyBtn.textContent='✓ Copiado!';
+      setTimeout(function(){ copyBtn.textContent='📋 Copiar Email'; }, 2000);
+    };}(ta));
+
+    var closeBtn = mkBtn('Fechar','btn-ghost btn-sm', function(el_){ return function(){ el_.style.display='none'; }; }(areaEl));
+
+    var btnRow = el('div'); btnRow.style.cssText='display:flex;gap:8px;margin-bottom:8px';
+    ap(btnRow, copyBtn, closeBtn);
+    ap(areaEl, btnRow, ta);
+    areaEl.style.display='block';
+  }
+  // ── FIM SEÇÃO USUÁRIOS ───────────────────────────────────────────────────
+
+  return div;
+}
+
+// ============================================================
+// PAGE: INDICATORS (PLACEHOLDER)
+// ============================================================
+function pageIndicators() {
+  var div = el('div');
+  ap(div, el('div','page-title','Indicadores Estratégicos'), el('div','page-sub','Monitoramento de metas institucionais'));
+  var pp = el('div','placeholder-page');
+  ap(pp, el('div','placeholder-icon','🎯'), el('div','placeholder-title','Indicadores Estratégicos'), el('div','placeholder-sub','Aqui você poderá registrar os indicadores estratégicos, táticos e operacionais da instituição, definir metas, acompanhar a evolução e vincular cada indicador às iniciativas do Azure DevOps.'));
+  var btn = el('button','btn btn-disabled','⏳ Em desenvolvimento');
+  btn.disabled = true;
+  ap(pp, btn);
+  ap(div, pp);
+  return div;
+}
+
+// ============================================================
+// PAGE: SETTINGS
+// ============================================================
+function pageSettings() {
+  var div = el('div');
+  ap(div, el('div','page-title','Configurações'));
+  var wrap = el('div'); wrap.style.maxWidth = '640px';
+
+  // PAT
+  var patCard = el('div','card'); var pch = el('div','card-hd'); ap(pch,el('span','card-title','🔑 PAT Azure DevOps'));
+  var patBody = el('div','card-body');
+  var patG = el('div','form-group'); ap(patG,el('label','form-lbl','Personal Access Token'));
+  var patInp = document.createElement('input'); patInp.type='password'; patInp.className='form-input'; patInp.placeholder='Cole seu PAT aqui...'; patInp.value=S.patInput||''; patInp.autocomplete='off'; patInp.oninput=function(){S.patInput=patInp.value;};
+  ap(patG,patInp);
+  var saveBtn = mkBtn('Salvar e Testar','btn-primary', async function(){
+    var t=(S.patInput||'').trim(); if(!t){S.patMsg={type:'err',msg:'Insira um PAT.'};render();return;}
+    S.patMsg=null; render();
+    try { await fetchIters(t); try { localStorage.setItem('azurePAT',t); } catch(e) {} S.token=t; S.patMsg={type:'ok',msg:'✅ PAT válido! Carregando dados...'}; loadData(t,true); }
+    catch(e){ S.patMsg={type:'err',msg:'❌ '+e.message}; }
+    render();
+  });
+  ap(patBody,patG,saveBtn);
+  if (S.patMsg) ap(patBody,el('div','alert alert-'+(S.patMsg.type==='ok'?'ok':'err'),S.patMsg.msg));
+  if (S.token) { var tokInfo=el('div','alert alert-info'); tokInfo.textContent='✓ Token configurado. '+timeAgo(S.cacheTs); ap(patBody,tokInfo); }
+  ap(patCard,pch,patBody); ap(wrap,patCard);
+
+  // Feriados
+  var holCard = el('div','card'); var holh = el('div','card-hd'); ap(holh,el('span','card-title','📅 Feriados'));
+  var holBody = el('div','card-body');
+  var holTabs = el('div','tabs');
+  ['2026'].forEach(function(y){ ap(holTabs,mkTab(y,S.holYear===y,function(yy){return function(){S.holYear=yy;render();};}(y))); });
+  var holRow = el('div'); holRow.style.cssText='display:flex;gap:8px;margin-bottom:12px';
+  var holDInp = document.createElement('input'); holDInp.type='date'; holDInp.className='form-input'; holDInp.style.width='160px'; holDInp.value=S.holDate; holDInp.oninput=function(){S.holDate=holDInp.value;};
+  var holNInp = document.createElement('input'); holNInp.type='text'; holNInp.className='form-input'; holNInp.placeholder='Nome do feriado'; holNInp.value=S.holName; holNInp.oninput=function(){S.holName=holNInp.value;};
+  var addBtn = mkBtn('+ Adicionar','btn-primary btn-sm', function(){
+    if(!S.holDate||!S.holName)return;
+    S.holidays.push({date:S.holDate,name:S.holName});
+    try { localStorage.setItem('holidays',JSON.stringify(S.holidays)); } catch(e) {}
+    S.holDate=''; S.holName=''; render();
+  });
+  ap(holRow,holDInp,holNInp,addBtn);
+  var htbl=el('table'); var hthead=el('thead'); var htr0=el('tr'); ap(htr0,el('th','','Data'),el('th','','Nome'),el('th','','')); ap(hthead,htr0); ap(htbl,hthead);
+  var htbody=el('tbody');
+  var filtHol=S.holidays.filter(function(h){return(h.date||'').startsWith(S.holYear);}).sort(function(a,b){return a.date.localeCompare(b.date);});
+  if (!filtHol.length) { var hem=el('tr');var hetd=el('td');hetd.setAttribute('colspan','3');hetd.style.cssText='text-align:center;color:var(--senai-muted);padding:14px;font-size:13px';hetd.textContent='Nenhum feriado em '+S.holYear+'.';ap(hem,hetd);ap(htbody,hem); }
+  filtHol.forEach(function(hol){
+    var htr=el('tr');
+    var delbtn=mkBtn('✕','btn-danger btn-sm', function(h_){return function(){S.holidays=S.holidays.filter(function(x){return x!==h_;});try { localStorage.setItem('holidays',JSON.stringify(S.holidays)); } catch(e) {} render();};}(hol));
+    var tdx=el('td'); ap(tdx,delbtn);
+    ap(htr,el('td','',fmt(hol.date)),el('td','',hol.name),tdx);
+    ap(htbody,htr);
+  });
+  ap(htbl,htbody); ap(holBody,holTabs,holRow,htbl); ap(holCard,holh,holBody); ap(wrap,holCard);
+
+  // Sprints
+  var spCard=el('div','card'); var sph=el('div','card-hd'); ap(sph,el('span','card-title','📊 Capacidade por Sprint · '+S.holYear));
+  var spb=el('div','tbl-wrap');
+  var sptbl=el('table'); var spthead=el('thead'); var sptr0=el('tr');
+  ['Sprint','Início','Fim','Dias Úteis','Horas Disponíveis'].forEach(function(h){ap(sptr0,el('th','',h));});
+  ap(spthead,sptr0); ap(sptbl,spthead); var sptbody=el('tbody');
+  var spIters=S.iterations.filter(function(i){var s=i.startDate||'',e=i.finishDate||'';return s.startsWith(S.holYear)||e.startsWith(S.holYear);});
+  if (!spIters.length) { var shem=el('tr');var shetd=el('td');shetd.setAttribute('colspan','5');shetd.style.cssText='text-align:center;color:var(--senai-muted);padding:14px;font-size:13px';shetd.textContent='Configure o PAT para carregar as sprints.';ap(shem,shetd);ap(sptbody,shem); }
+  spIters.forEach(function(iter){
+    var d=workDays(iter.startDate,iter.finishDate);
+    var sptr=el('tr');
+    ap(sptr,el('td','','<strong>'+iter.name+'</strong>'),el('td','',fmt(iter.startDate)),el('td','',fmt(iter.finishDate)),el('td','',d+'d'),el('td','',d*8+'h'));
+    ap(sptbody,sptr);
+  });
+  ap(sptbl,sptbody); ap(spb,sptbl); ap(spCard,sph,spb); ap(wrap,spCard);
+  ap(div,wrap);
+  return div;
+}
+
+// ============================================================
+// SIDEBAR
+// ============================================================
+function renderSidebar() {
+  var s = el('div','sidebar');
+  var logo = el('div','sidebar-logo');
+  var logoImg = document.createElement('img');
+  logoImg.src = 'data:image/png;base64,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AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAcv8PEl7jDjQ9NE8AAAAASUVORK5CYII=';
+  logoImg.alt = 'SENAi';
+  logoImg.style.cssText = 'width:180px;height:auto;display:block;margin:0 auto';
+  ap(logo, logoImg);
+  ap(s, logo);
+  var nav = el('div','nav');
+  ap(nav, el('div','nav-label','Menu'));
+  var items = [
+    {id:'dashboard',ico:'📊',lbl:'Dashboard'},
+    {id:'monitoring',ico:'🔍',lbl:'Monitoramento'},
+    {id:'sprint',ico:'🏃',lbl:'Sprint'},
+    {id:'collaborator',ico:'👥',lbl:'Colaboradores'},
+    {id:'governance',ico:'🛡️',lbl:'Governança'},
+    {id:'indicators',ico:'🎯',lbl:'Indicadores'},
+    {id:'settings',ico:'⚙️',lbl:'Configurações'},
+  ];
+  items.forEach(function(n){
+    var ni = el('div','nav-item'+(S.page===n.id?' active':''));
+    ap(ni, el('span','nav-icon',n.ico), el('span','',n.lbl));
+    ni.onclick = (function(id_){return function(){S.page=id_;render();};})(n.id);
+    ap(nav,ni);
+  });
+  ap(s, nav, el('div','sidebar-footer','SENAi DR Alagoas · v4'));
+  return s;
+}
+
+// ============================================================
+// RENDER
+// ============================================================
+function showToast(msg) {
+  var t = document.getElementById('toast-msg');
+  if (!t) {
+    t = document.createElement('div'); t.id='toast-msg';
+    t.style.cssText='position:fixed;bottom:24px;right:24px;background:#1e293b;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,0.25);opacity:0;transition:opacity 0.3s';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg; t.style.opacity='1';
+  clearTimeout(t._to); t._to = setTimeout(function(){ t.style.opacity='0'; }, 3000);
+}
+
+// ============================================================
+// MODO COLABORADOR — Sidebar
+// ============================================================
+function renderColabSidebar() {
+  var s = el('div','sidebar');
+  var logo = el('div','sidebar-logo');
+  // Reutilizar o mesmo bloco de logo do sidebar principal
+  var logoImg2 = document.createElement('img');
+  var existingLogo = document.querySelector('#sidebar .sidebar-logo img');
+  if (existingLogo) {
+    logoImg2.src = existingLogo.src;
+  } else {
+    // Fallback: texto simples
+    logo.textContent = 'SENAi';
+    logo.style.cssText = 'color:#fff;font-size:22px;font-weight:900;font-style:italic;padding:16px 20px;letter-spacing:-1px';
+  }
+  if (existingLogo) {
+    logoImg2.alt = 'SENAi';
+    logoImg2.style.cssText = 'width:180px;height:auto;display:block;margin:0 auto';
+    ap(logo, logoImg2);
+  }
+  ap(s, logo);
+  var nav = el('div','nav');
+  ap(nav, el('div','nav-label','Olá, '+S.colabName));
+  var items = [
+    {id:'collab_meus_itens',   ico:'📋', lbl:'Meus Itens'},
+    {id:'collab_minha_sprint', ico:'🏃', lbl:'Minha Sprint'},
+    {id:'collab_desempenho',   ico:'📈', lbl:'Meu Desempenho'},
+  ];
+  items.forEach(function(n){
+    var ni = el('div','nav-item'+(S.page===n.id?' active':''));
+    ap(ni, el('span','nav-icon',n.ico), el('span','',n.lbl));
+    ni.onclick = (function(id_){return function(){S.page=id_;render();};})(n.id);
+    ap(nav,ni);
+  });
+  ap(s, nav, el('div','sidebar-footer','SENAi DR Alagoas · Colaborador'));
+  return s;
+}
+
+// ============================================================
+// MODO COLABORADOR — helpers
+// ============================================================
+function getColabItems() {
+  return S.workItems.filter(function(w){
+    var a = w.fields['System.AssignedTo'];
+    return a && a.displayName === S.colabName;
+  });
+}
+function getColabCurIter() {
+  var today = new Date(); today.setHours(0,0,0,0);
+  var found = null;
+  (S.iterations||[]).forEach(function(it){
+    if (!it.startDate) return;
+    var sd=localDate(it.startDate), fd=localDate(it.finishDate); fd.setHours(23,59,59,0);
+    if (sd<=today && fd>=today) found=it;
+  });
+  return found;
+}
+
+// ============================================================
+// MODO COLABORADOR — Aba: Meus Itens
+// ============================================================
+function pageColabMeusItens() {
+  var div = el('div');
+  var wis = getColabItems();
+  var today = new Date(); today.setHours(0,0,0,0);
+
+  ap(div, el('div','page-title','📋 Meus Itens'), el('div','page-sub',S.colabName+' · 2026'));
+
+  if (!S.token) { ap(div, mkEmptyState('🔑','Acesso inválido','Seu link de acesso expirou. Solicite um novo link ao gestor responsável.')); return div; }
+  if (!wis.length) { ap(div, mkEmptyState('📭','Sem itens','Nenhum item atribuído a você foi encontrado.')); return div; }
+
+  // Cards de alerta pessoal
+  var delayed = wis.filter(function(w){ return isDelayed(w); });
+  var noSprint = wis.filter(function(w){ var ip=w.fields['System.IterationPath']||''; return !ip || ip===('Senai') || ip.split('\\').length < 3; });
+
+  var alertsBar = el('div','kpi-grid'); alertsBar.style.cssText='grid-template-columns:repeat(3,1fr);margin-bottom:16px';
+  ap(alertsBar,
+    mkKpi('⚠ Atrasados', delayed.length, null, delayed.length>0?'kpi-red':'kpi-green'),
+    mkKpi('👻 Sem sprint', noSprint.length, null, noSprint.length>0?'kpi-orange':'kpi-green'),
+    mkKpi('Total de itens', wis.length, null, 'kpi-blue')
+  );
+  ap(div, alertsBar);
+
+  // Filtros
+  var allSprints = (S.iterations||[]).filter(function(it){ return it.startDate&&it.startDate.startsWith('2026'); })
+    .sort(function(a,b){return localDate(a.startDate)-localDate(b.startDate);})
+    .map(function(it){return it.name;});
+
+  if (!S.colabFiltSprint) S.colabFiltSprint = '__all__';
+  if (!S.colabFiltState)  S.colabFiltState  = '__all__';
+  if (!S.colabFiltLevel)  S.colabFiltLevel  = '__all__';
+
+  var spOpts = [{v:'__all__',l:'Todas as sprints'}].concat(allSprints.map(function(s){return {v:s,l:s};}));
+  var stOpts = [{v:'__all__',l:'Todos os estados'},
+    {v:'ativo',l:'Em andamento'},{v:'done',l:'Concluído'},
+    {v:'paused',l:'Pausado'},{v:'delayed',l:'Atrasado'}];
+  var lvOpts = [{v:'__all__',l:'Todos os níveis'},
+    'Estratégico','Tático','Operacional','Plano de trabalho','Apoio a gestão','T.I.'].map(function(o){
+      return typeof o==='string' ? {v:o,l:o} : o;
+    });
+
+  var fb = el('div','filter-bar');
+  ap(fb,
+    el('span','flbl','Sprint:'), mkSelect(spOpts, S.colabFiltSprint, function(v){S.colabFiltSprint=v;render();}),
+    el('span','flbl','Estado:'), mkSelect(stOpts, S.colabFiltState, function(v){S.colabFiltState=v;render();}),
+    el('span','flbl','Nível:'),  mkSelect(lvOpts, S.colabFiltLevel, function(v){S.colabFiltLevel=v;render();})
+  );
+  ap(div, fb);
+
+  // Filtrar itens
+  var filtered = wis.filter(function(w){
+    if (S.colabFiltSprint!=='__all__') {
+      var ip=w.fields['System.IterationPath']||'';
+      if (!ip.includes(S.colabFiltSprint)) return false;
+    }
+    if (S.colabFiltState!=='__all__') {
+      var st=w.fields['System.State']||'';
+      if (S.colabFiltState==='done' && !isDone(st)) return false;
+      if (S.colabFiltState==='paused' && !isPaused(st)) return false;
+      if (S.colabFiltState==='delayed' && !isDelayed(w)) return false;
+      if (S.colabFiltState==='ativo' && (isDone(st)||isPaused(st)||isCancel(st))) return false;
+    }
+    if (S.colabFiltLevel!=='__all__') {
+      if (getLevel(w.fields['System.Tags']||'')!==S.colabFiltLevel) return false;
+    }
+    return true;
+  });
+
+  // Tabela
+  var tblCard = el('div','card');
+  var tblHd = el('div','card-hd'); ap(tblHd, el('span','card-title',filtered.length+' item(ns) encontrado(s)'));
+  var tblWrap = el('div','tbl-wrap');
+  var tbl = document.createElement('table');
+  var thead = el('thead'); var hrow = el('tr');
+  ['ID','Título','Nível','Sprint','Estado','RW'].forEach(function(h){
+    var th2=document.createElement('th'); th2.textContent=h; ap(hrow,th2);
+  });
+  ap(thead,hrow); ap(tbl,thead);
+  var tbody = el('tbody');
+  filtered.forEach(function(w){
+    var tr=document.createElement('tr');
+    if(isDelayed(w)) tr.style.background='#fff5f5';
+    var idTd=document.createElement('td');
+    var idA=document.createElement('a');
+    idA.href='https://dev.azure.com/SENAIAlagoas/Senai/_workitems/edit/'+w.fields['System.Id'];
+    idA.target='_blank'; idA.textContent='#'+w.fields['System.Id'];
+    idA.style.cssText='color:var(--senai-blue);font-weight:700';
+    ap(idTd,idA);
+    var titleTd=document.createElement('td'); titleTd.textContent=w.fields['System.Title']||''; titleTd.style.maxWidth='260px';
+    var lvTd=document.createElement('td'); ap(lvTd,mkLevelBadge(w.fields['System.Tags']||''));
+    var sprintName=(w.fields['System.IterationPath']||'').split('\\').pop();
+    var spTd=document.createElement('td'); spTd.textContent=sprintName||'—';
+    var stTd=document.createElement('td'); ap(stTd,mkBadge(w.fields['System.State']||'',isDelayed(w)));
+    var rwTd=document.createElement('td'); rwTd.textContent=(w.fields['Microsoft.VSTS.Scheduling.RemainingWork']||0)+'h';
+    ap(tr,idTd,titleTd,lvTd,spTd,stTd,rwTd);
+    ap(tbody,tr);
+  });
+  ap(tbl,tbody); ap(tblWrap,tbl); ap(tblCard,tblHd,tblWrap);
+  ap(div, tblCard);
+
+  // Apontamentos de parametrização
+  var govProbs = wis.filter(function(w){ return govIssues(w).length>0; });
+  if (govProbs.length) {
+    var govCard = el('div','card'); govCard.style.marginTop='16px';
+    var govHd = el('div','card-hd');
+    var govTitle = el('span','card-title'); govTitle.textContent='⚠ Apontamentos de parametrização ('+govProbs.length+' item(s))';
+    var govToggle = el('button','btn btn-ghost btn-sm'); govToggle.textContent='▶ Ver';
+    var govBody = el('div'); govBody.style.display='none';
+    govToggle.onclick = function(){
+      var show = govBody.style.display==='none';
+      govBody.style.display = show?'block':'none';
+      govToggle.textContent = show?'▼ Ocultar':'▶ Ver';
+    };
+    ap(govHd, govTitle, govToggle); ap(govCard, govHd);
+    var govWrap = el('div','tbl-wrap');
+    var govTbl = document.createElement('table');
+    var gHead = el('thead'); var gHrow = el('tr');
+    ['Item','Problema','Ação'].forEach(function(h){ var th2=document.createElement('th');th2.textContent=h;ap(gHrow,th2); });
+    ap(gHead,gHrow); ap(govTbl,gHead);
+    var gBody = el('tbody');
+    govProbs.forEach(function(w){
+      govIssues(w).forEach(function(issue){
+        var issueLabel = typeof issue==='object' ? issue.label : issue;
+        var issueAction = typeof issue==='object' ? (issue.action||'Corrigir no Azure DevOps') :
+          (issue==='Sem parent'?'Vincular ao plano de ação correspondente':
+           issue==='Sem tag'?'Classificar como Estratégico/Tático/Operacional':
+           issue==='Sem sprint'?'Atribuir a uma sprint':
+           issue==='Sem responsável'?'Atribuir um responsável':'Corrigir no Azure DevOps');
+        var tr2=document.createElement('tr');
+        var idTd2=document.createElement('td');
+        var idA2=document.createElement('a');
+        idA2.href='https://dev.azure.com/SENAIAlagoas/Senai/_workitems/edit/'+w.fields['System.Id'];
+        idA2.target='_blank'; idA2.textContent='#'+w.fields['System.Id']+' · '+(w.fields['System.Title']||'').substring(0,40);
+        idA2.style.color='var(--senai-blue)';
+        ap(idTd2,idA2);
+        var probTd=document.createElement('td'); probTd.textContent=issueLabel; probTd.style.color='#ef4444';
+        var acaoTd=document.createElement('td'); acaoTd.textContent=issueAction;
+        ap(tr2,idTd2,probTd,acaoTd); ap(gBody,tr2);
+      });
+    });
+    ap(govTbl,gBody); ap(govWrap,govTbl); ap(govBody,govWrap); ap(govCard,govBody);
+    ap(div, govCard);
+  }
+
+  return div;
+}
+
+// ============================================================
+// MODO COLABORADOR — Aba: Minha Sprint
+// ============================================================
+function pageColabMinhaSprint() {
+  var div = el('div');
+  var wis = getColabItems();
+  var curIter = getColabCurIter();
+
+  ap(div, el('div','page-title','🏃 Minha Sprint'), el('div','page-sub',S.colabName));
+
+  if (!S.token) { ap(div, mkEmptyState('🔑','Acesso inválido','Seu link de acesso expirou. Solicite um novo link ao gestor responsável.')); return div; }
+
+  if (!curIter) { ap(div, mkEmptyState('📅','Sem sprint atual','Nenhuma sprint em andamento no momento.')); return div; }
+
+  // Card de contexto
+  var ctxCard = el('div','card'); ctxCard.style.marginBottom='16px';
+  var ctxBody = el('div','card-body');
+  var today = new Date(); today.setHours(0,0,0,0);
+  var sd = localDate(curIter.startDate); var fd = localDate(curIter.finishDate); fd.setHours(23,59,59,0);
+  function fmtD(d){return d.getDate().toString().padStart(2,'0')+'/'+(d.getMonth()+1).toString().padStart(2,'0');}
+  function wdLeft(){var cur2=new Date(today),n=0;while(cur2<=fd){var d2=cur2.getDay();if(d2!==0&&d2!==6)n++;cur2.setDate(cur2.getDate()+1);}return n;}
+  var ctxTxt = el('div'); ctxTxt.style.cssText='font-size:16px;font-weight:800;color:var(--senai-blue)';
+  ctxTxt.textContent=curIter.name+' · '+fmtD(sd)+' a '+fmtD(fd)+' · '+wdLeft()+' dias úteis restantes';
+  ap(ctxBody, ctxTxt); ap(ctxCard, ctxBody);
+  ap(div, ctxCard);
+
+  // Itens da sprint atual
+  var spWis = wis.filter(function(w){
+    var ip=w.fields['System.IterationPath']||'';
+    return ip.includes(curIter.name);
+  });
+
+  // KPIs pessoais
+  var done2=spWis.filter(function(w){return isDone(w.fields['System.State']||'');});
+  var active2=spWis.filter(function(w){var st=w.fields['System.State']||'';return !isDone(st)&&!isPaused(st)&&!isCancel(st);});
+  var delayed2=spWis.filter(function(w){return isDelayed(w);});
+  var rw2=spWis.reduce(function(s,w){return s+(w.fields['Microsoft.VSTS.Scheduling.RemainingWork']||0);},0);
+
+  var kg = el('div','kpi-grid'); kg.style.gridTemplateColumns='repeat(5,1fr)';
+  ap(kg,
+    mkKpi('Meus itens', spWis.length, null, 'kpi-blue'),
+    mkKpi('Concluídos', done2.length, null, 'kpi-green'),
+    mkKpi('Em andamento', active2.length, null, 'kpi-light'),
+    mkKpi('Atrasados', delayed2.length, null, delayed2.length>0?'kpi-red':'kpi-green'),
+    mkKpi('Remaining Work', rw2.toFixed(0)+'h', null, 'kpi-orange')
+  );
+  ap(div, kg);
+
+  // Barra de esforço
+  function wdCount2(s2,f2){if(!s2||!f2)return 0;var c2=localDate(s2),e=localDate(f2);e.setHours(23,59,59,0);var n=0;while(c2<=e){var d2=c2.getDay();if(d2!==0&&d2!==6)n++;c2.setDate(c2.getDate()+1);}return n;}
+  var capHrs = getSprintCapacity(S.colabName, curIter.startDate, curIter.finishDate);
+  var uso = capHrs>0?(rw2/capHrs*100):0;
+  var semC = uso<40?'#164194':uso<=80?'#22c55e':uso<=100?'#eab308':'#ef4444';
+  var semL = uso<40?'🔵 Subutilizado':uso<=80?'🟢 Dentro do esperado':uso<=100?'🟡 Atenção':'🔴 Excesso';
+  var efCard = el('div','card'); efCard.style.marginTop='16px';
+  var efHd = el('div','card-hd'); ap(efHd, el('span','card-title','⚡ Esforço na Sprint'));
+  var efBody = el('div','card-body');
+  var efGrid = el('div'); efGrid.style.cssText='display:grid;grid-template-columns:200px 1fr;gap:5px 12px;align-items:center';
+  function efRow(lbl,val){var l=el('div');l.style.cssText='font-size:13px;color:var(--senai-muted)';l.textContent=lbl;var v=el('div');v.style.cssText='font-size:14px;font-weight:700';v.textContent=val;ap(efGrid,l,v);}
+  efRow('Capacidade da sprint:', capHrs.toFixed(0)+'h');
+  efRow('Remaining Work:', rw2.toFixed(0)+'h');
+  efRow('Uso da capacidade:', uso.toFixed(0)+'%');
+  efRow('Meta de ocupação:', '68,75% da capacidade');
+  var semBadge = el('span','badge'); semBadge.textContent=semL; semBadge.style.cssText='background:'+semC+';color:#fff;padding:4px 12px;border-radius:999px;font-size:12px;margin-top:8px';
+  ap(efBody, efGrid, semBadge); ap(efCard, efHd, efBody);
+  ap(div, efCard);
+
+  // Lista de itens agrupados por nível
+  var spCard = el('div','card'); spCard.style.marginTop='16px';
+  var spHd = el('div','card-hd'); ap(spHd, el('span','card-title','📌 Itens da Sprint — '+curIter.name));
+  var spBody = el('div','card-body'); spBody.style.padding='0';
+  var allLevels2 = ['Estratégico','Tático','Operacional','Plano de trabalho','Apoio a gestão','T.I.','Sem tag'];
+  var renderedIds2 = {};
+  allLevels2.forEach(function(lv){
+    var lvItems = spWis.filter(function(w){ return getLevel(w.fields['System.Tags']||'')===lv; });
+    if (!lvItems.length) return;
+    var grpHd = el('div'); grpHd.style.cssText='padding:10px 16px;background:#f8fafc;font-weight:700;font-size:12px;border-bottom:1px solid var(--senai-border);color:var(--senai-blue)';
+    grpHd.textContent=lv+' ('+lvItems.length+')'; ap(spBody, grpHd);
+    lvItems.forEach(function(w){
+      renderedIds2[w.id]=true;
+      var row=el('div'); row.style.cssText='display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid #f1f5f9;'+(isDelayed(w)?'background:#fff5f5':'');
+      var idA=document.createElement('a'); idA.href='https://dev.azure.com/SENAIAlagoas/Senai/_workitems/edit/'+w.fields['System.Id']; idA.target='_blank'; idA.textContent='#'+w.fields['System.Id']; idA.style.cssText='color:var(--senai-blue);font-weight:700;min-width:52px;font-size:12px';
+      var ttl=el('span'); ttl.textContent=w.fields['System.Title']||''; ttl.style.cssText='flex:1;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
+      var rw3=el('span'); rw3.style.cssText='font-size:12px;color:var(--senai-muted);white-space:nowrap'; rw3.textContent=(w.fields['Microsoft.VSTS.Scheduling.RemainingWork']||0)+'h';
+      ap(row,idA,mkLevelBadge(w.fields['System.Tags']||''),mkBadge(w.fields['System.State']||'',isDelayed(w)),ttl,rw3);
+      ap(spBody,row);
+    });
+  });
+  var unclassified2 = spWis.filter(function(w){ return !renderedIds2[w.id]; });
+  if (unclassified2.length) {
+    var grpHdU = el('div'); grpHdU.style.cssText='padding:10px 16px;background:#f8fafc;font-weight:700;font-size:12px;border-bottom:1px solid var(--senai-border);color:#94a3b8';
+    grpHdU.textContent='Sem classificação ('+unclassified2.length+')'; ap(spBody, grpHdU);
+    unclassified2.forEach(function(w){
+      var row=el('div'); row.style.cssText='display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid #f1f5f9;'+(isDelayed(w)?'background:#fff5f5':'');
+      var idA=document.createElement('a'); idA.href='https://dev.azure.com/SENAIAlagoas/Senai/_workitems/edit/'+w.fields['System.Id']; idA.target='_blank'; idA.textContent='#'+w.fields['System.Id']; idA.style.cssText='color:var(--senai-blue);font-weight:700;min-width:52px;font-size:12px';
+      var ttl=el('span'); ttl.textContent=w.fields['System.Title']||''; ttl.style.cssText='flex:1;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
+      var rw3=el('span'); rw3.style.cssText='font-size:12px;color:var(--senai-muted);white-space:nowrap'; rw3.textContent=(w.fields['Microsoft.VSTS.Scheduling.RemainingWork']||0)+'h';
+      ap(row,idA,mkBadge(w.fields['System.State']||'',isDelayed(w)),ttl,rw3);
+      ap(spBody,row);
+    });
+  }
+  if (!spWis.length) { ap(spBody, el('div','','Nenhum item atribuído a você nesta sprint.')); }
+  ap(spCard, spHd, spBody); ap(div, spCard);
+  return div;
+}
+
+// ============================================================
+// MODO COLABORADOR — Aba: Meu Desempenho
+// ============================================================
+function pageColabDesempenho() {
+  var div = el('div');
+  var wis = getColabItems();
+  ap(div, el('div','page-title','📈 Meu Desempenho'), el('div','page-sub',S.colabName+' · 2026'));
+
+  if (!S.token) { ap(div, mkEmptyState('🔑','Acesso inválido','Seu link de acesso expirou.')); return div; }
+
+  var iters2026 = (S.iterations||[]).filter(function(it){ return it.startDate&&it.startDate.startsWith('2026'); })
+    .sort(function(a,b){return localDate(a.startDate)-localDate(b.startDate);});
+
+  // Cards de resumo
+  var totalEntregues = wis.filter(function(w){ return isDone(w.fields['System.State']||''); }).length;
+  var spComDados = 0, sumExec = 0, sumConf = 0;
+  iters2026.forEach(function(it){
+    var spItems = wis.filter(function(w){ var ip=w.fields['System.IterationPath']||''; return ip.includes(it.name); });
+    if (!spItems.length) return;
+    spComDados++;
+    var dn = spItems.filter(function(w){ return isDone(w.fields['System.State']||''); }).length;
+    sumExec += spItems.length ? (dn/spItems.length*100) : 0;
+    var conf = spItems.filter(function(w){ return govIssues(w).length===0; }).length;
+    sumConf += spItems.length ? (conf/spItems.length*100) : 0;
+  });
+  var mediaExec = spComDados ? Math.round(sumExec/spComDados) : 0;
+  var mediaConf = spComDados ? Math.round(sumConf/spComDados) : 0;
+
+  var sumCards = el('div','kpi-grid'); sumCards.style.gridTemplateColumns='repeat(4,1fr)';
+  ap(sumCards,
+    mkKpi('Média de execução', mediaExec+'%', null, 'kpi-blue'),
+    mkKpi('Média de conformidade', mediaConf+'%', null, 'kpi-green'),
+    mkKpi('Sprints com dados', spComDados, null, 'kpi-light'),
+    mkKpi('Itens entregues', totalEntregues, null, 'kpi-orange')
+  );
+  ap(div, sumCards);
+
+  // Tabela histórica
+  var histCard = el('div','card'); histCard.style.marginTop='16px';
+  var histHd = el('div','card-hd'); ap(histHd, el('span','card-title','📊 Desempenho por Sprint'));
+  var histWrap = el('div','tbl-wrap');
+  var histTbl = document.createElement('table');
+  var histThead = el('thead'); var histHrow = el('tr');
+  ['Sprint','Itens','Concluídos','Execução','Conformidade','RW','Capacidade','Uso','Situação'].forEach(function(h){
+    var th2=document.createElement('th'); th2.textContent=h; ap(histHrow,th2);
+  });
+  ap(histThead,histHrow); ap(histTbl,histThead);
+  var histTbody = el('tbody');
+
+  function wdC3(s3,f3){if(!s3||!f3)return 0;var c3=localDate(s3),e=localDate(f3);e.setHours(23,59,59,0);var n=0;while(c3<=e){var d3=c3.getDay();if(d3!==0&&d3!==6)n++;c3.setDate(c3.getDate()+1);}return n;}
+
+  iters2026.forEach(function(it){
+    var spItems = wis.filter(function(w){ var ip=w.fields['System.IterationPath']||''; return ip.includes(it.name); });
+    if (!spItems.length) return;
+    var dn2 = spItems.filter(function(w){ return isDone(w.fields['System.State']||''); }).length;
+    var rw4 = spItems.reduce(function(s,w){ return s+(w.fields['Microsoft.VSTS.Scheduling.RemainingWork']||0); },0);
+    var cap5 = getSprintCapacity(S.colabName, it.startDate, it.finishDate);
+    var exec5 = spItems.length ? Math.round(dn2/spItems.length*100) : 0;
+    var conf5 = spItems.filter(function(w){ return govIssues(w).length===0; }).length;
+    var confPct = spItems.length ? Math.round(conf5/spItems.length*100) : 0;
+    var uso5 = cap5>0 ? Math.round(rw4/cap5*100) : 0;
+    var semC5 = uso5<40?'#164194':uso5<=80?'#22c55e':uso5<=100?'#eab308':'#ef4444';
+    var semL5 = uso5<40?'🔵':uso5<=80?'🟢':uso5<=100?'🟡':'🔴';
+    var tr3=document.createElement('tr');
+    [it.name, spItems.length, dn2, exec5+'%', confPct+'%', rw4.toFixed(0)+'h', cap5+'h', uso5+'%'].forEach(function(v){
+      var td=document.createElement('td'); td.textContent=v; ap(tr3,td);
+    });
+    var semTd=document.createElement('td');
+    var sb=el('span','badge'); sb.textContent=semL5; sb.style.background=semC5; sb.style.color='#fff'; sb.style.padding='2px 8px'; sb.style.borderRadius='999px';
+    ap(semTd,sb); ap(tr3,semTd); ap(histTbody,tr3);
+  });
+  ap(histTbl,histTbody); ap(histWrap,histTbl); ap(histCard,histHd,histWrap);
+  ap(div, histCard);
+  return div;
+}
+
+
+function render() {
+  renderLoading();
+  var sidebar = document.getElementById('sidebar');
+  var main = document.getElementById('main');
+  if (!sidebar || !main) return;
+  sidebar.innerHTML = ''; sidebar.appendChild(renderSidebar());
+  main.innerHTML = '';
+  var content;
+  if (S.colabMode) {
+    sidebar.innerHTML = ''; sidebar.appendChild(renderColabSidebar());
+    if (S.page==='collab_meus_itens') content = pageColabMeusItens();
+    else if (S.page==='collab_minha_sprint') content = pageColabMinhaSprint();
+    else if (S.page==='collab_desempenho') content = pageColabDesempenho();
+    else content = pageColabMeusItens();
+  } else if (S.page==='dashboard') content = pageDashboard();
+  else if (S.page==='monitoring') content = pageMonitoring();
+  else if (S.page==='sprint') content = pageSprint();
+  else if (S.page==='collaborator') content = pageCollaborators();
+  else if (S.page==='governance') content = pageGovernance();
+  else if (S.page==='indicators') content = pageIndicators();
+  else content = pageSettings();
+  try {
+    main.appendChild(content);
+  } catch(err) {
+    var errDiv = document.createElement('div');
+    errDiv.style.cssText = 'padding:32px;color:#ef4444;font-size:14px;';
+    errDiv.textContent = '⚠ Erro ao renderizar: ' + err.message;
+    main.appendChild(errDiv);
+  }
+}
+
+// ============================================================
+// MODO COLABORADOR — detecção via URL params
+// ============================================================
+(function() {
+  function getUrlParam(name) {
+    try { return new URLSearchParams(window.location.search).get(name); } catch(e) { return null; }
+  }
+  var colabName  = getUrlParam('colaborador');
+  var colabToken = getUrlParam('token');
+  if (colabName) {
+    S.colabMode  = true;
+    S.colabName  = decodeURIComponent(colabName);
+    S.colabToken = colabToken ? atob(colabToken) : null;
+    if (S.colabToken) { S.token = S.colabToken; }
+    S.page = 'collab_meus_itens';
+  }
+})();
+
+// ============================================================
+// INIT
+// ============================================================
+render();
+if (S.token) loadData(S.token, false);
+</script>
+</body>
+</html>
